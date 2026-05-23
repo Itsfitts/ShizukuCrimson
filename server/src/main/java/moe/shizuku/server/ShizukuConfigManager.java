@@ -158,8 +158,6 @@ public class ShizukuConfigManager extends ConfigManager {
 
                 String activePerm = null;
                 if (ArraysKt.contains(pi.requestedPermissions, PERMISSION)) activePerm = PERMISSION;
-                else if (ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_LEGACY)) activePerm = ServerConstants.PERMISSION_LEGACY;
-                else if (ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_ORIGINAL)) activePerm = ServerConstants.PERMISSION_ORIGINAL;
 
                 if (activePerm == null) continue;
 
