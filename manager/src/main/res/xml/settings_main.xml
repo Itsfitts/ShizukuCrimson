@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_plus"
         android:title="Shizuku+ Power Tools"
         android:defaultValue="true">
@@ -12,18 +12,18 @@
             android:title="Feature Hub"
             android:summary="Manage exclusive Plus capabilities"
             android:icon="@drawable/ic_bolt_24"
-            android:fragment="af.shizuku.manager.settings.ShizukuPlusSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.ShizukuPlusSettingsFragment" />
 
         <Preference
             android:key="nav_root_integration"
             android:title="Compatibility &amp; Root"
             android:summary="SU bridge and rootless integration"
             android:icon="@drawable/ic_shield_24"
-            android:fragment="af.shizuku.manager.settings.RootIntegrationSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.RootIntegrationSettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_personalization"
         android:title="Personalization"
         android:defaultValue="true">
@@ -33,18 +33,18 @@
             android:title="Appearance"
             android:summary="Theme, icons, and animations"
             android:icon="@drawable/ic_palette_24"
-            android:fragment="af.shizuku.manager.settings.UISettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.UISettingsFragment" />
 
         <Preference
             android:key="nav_home_visibility"
             android:title="Home Layout"
             android:summary="Customize visible cards and shortcuts"
             android:icon="@drawable/ic_window_24"
-            android:fragment="af.shizuku.manager.settings.HomeVisibilitySettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.HomeVisibilitySettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_management"
         android:title="Management"
         android:defaultValue="true">
@@ -54,11 +54,11 @@
             android:title="App Permissions"
             android:summary="Manage authorized applications"
             android:icon="@drawable/ic_devices_24"
-            android:fragment="af.shizuku.manager.settings.AppManagementSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.AppManagementSettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_system"
         android:title="System"
         android:defaultValue="true">
@@ -68,18 +68,18 @@
             android:title="Behavior"
             android:summary="Start on boot and background stability"
             android:icon="@drawable/ic_settings_suggest_24"
-            android:fragment="af.shizuku.manager.settings.BehaviorSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.BehaviorSettingsFragment" />
 
         <Preference
             android:key="nav_advanced"
             android:title="Advanced"
             android:summary="Diagnostics, logs, and troubleshooting"
             android:icon="@drawable/ic_terminal_24"
-            android:fragment="af.shizuku.manager.settings.AdvancedSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.AdvancedSettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_update"
         android:title="@string/settings_update_category"
         android:defaultValue="true">
@@ -89,11 +89,11 @@
             android:title="@string/settings_update_title"
             android:summary="@string/settings_update_summary"
             android:icon="@drawable/ic_update_24"
-            android:fragment="af.shizuku.manager.settings.UpdateSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.UpdateSettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_about"
         android:title="@string/settings_about"
         android:defaultValue="true">
@@ -103,8 +103,8 @@
             android:title="@string/settings_about"
             android:summary="@string/settings_version"
             android:icon="@drawable/ic_info_24"
-            android:fragment="af.shizuku.manager.settings.AboutSettingsFragment" />
+            android:fragment="moe.shizuku.manager.settings.AboutSettingsFragment" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
 </PreferenceScreen>

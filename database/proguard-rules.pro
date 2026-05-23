@@ -3,13 +3,13 @@
 # in /sdk/tools/proguard/proguard-android.txt
 
 # Keep Room entities
--keep class af.shizuku.manager.database.ActivityLogRoom { *; }
+-keep class moe.shizuku.manager.database.ActivityLogRoom { *; }
 
 # Keep DAO
--keep class af.shizuku.manager.database.ActivityLogDao { *; }
+-keep class moe.shizuku.manager.database.ActivityLogDao { *; }
 
 # Keep Database
--keep class af.shizuku.manager.database.ActivityLogDatabase { *; }
+-keep class moe.shizuku.manager.database.ActivityLogDatabase { *; }
 
 # Room
 -keep class * extends androidx.room.RoomDatabase

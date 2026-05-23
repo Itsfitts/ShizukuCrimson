@@ -1,9 +1,9 @@
--keep class af.shizuku.server.** { *; }
--keep class af.shizuku.starter.** { *; }
--keep class af.shizuku.api.** { *; }
--keep class af.shizuku.common.** { *; }
--keep class af.shizuku.ShizukuApiConstants { *; }
--keep class af.rish.** { *; }
+-keep class moe.shizuku.server.** { *; }
+-keep class moe.shizuku.starter.** { *; }
+-keep class rikka.shizuku.** { *; }
+-keep class rikka.shizuku.common.** { *; }
+-keep class rikka.shizuku.ShizukuApiConstants { *; }
+-keep class moe.shizuku.shell.** { *; }
 -keep class rikka.hidden.compat.** { *; }
 -keep class rikka.parcelablelist.** { *; }
 -keep class com.google.gson.** { *; }

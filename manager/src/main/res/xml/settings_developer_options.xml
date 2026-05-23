@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Backup & Restore -->
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_backup"
         android:title="@string/settings_backup_category"
         android:defaultValue="false">
@@ -19,6 +19,6 @@
             android:summary="@string/settings_import_summary"
             android:icon="@drawable/ic_outline_arrow_downward_24" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
 </PreferenceScreen>

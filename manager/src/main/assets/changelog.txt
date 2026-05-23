@@ -13,7 +13,7 @@ which is itself a fork of [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizu
 ## Manager Application (`manager/`)
 
 ### Package & Identity
-- Package renamed from `moe.shizuku.privileged.api` to `af.shizuku.plus.api`
+- Package renamed from `moe.shizuku.privileged.api` to `moe.shizuku.privileged.api`
 - App name changed to "Shizuku+"
 - Custom launcher icons and branding
 - **Coexistence Fix:** Updated `autoResConfig` namespace to ensure zero-overlap with original Shizuku installations.
@@ -95,9 +95,9 @@ which is itself a fork of [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizu
 
 ## API (`api/`)
 
-- Package renamed to `af.shizuku`.
+- Package renamed to `rikka.shizuku`.
 - Legacy compatibility with `rikka.shizuku` and `moe.shizuku` has been removed to ensure a clean, single-namespace architecture.
-- All client apps must now use the `af.shizuku` namespace.
+- All client apps must now use the `rikka.shizuku` namespace.
 - No other breaking changes to public API surface.
 
 ---

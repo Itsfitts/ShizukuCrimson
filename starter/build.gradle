@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "af.shizuku.starter"
+    namespace = "moe.shizuku.starter"
     buildFeatures {
         buildConfig = false
     }

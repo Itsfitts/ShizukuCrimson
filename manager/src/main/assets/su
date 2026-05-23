@@ -7,7 +7,7 @@
 BASEDIR=$(dirname "$0")
 
 # rish needs RISH_APPLICATION_ID to be a package that has Shizuku permission.
-export RISH_APPLICATION_ID="af.shizuku.plus.api"
+export RISH_APPLICATION_ID="moe.shizuku.privileged.api"
 
 # If no arguments are provided, drop into an interactive rish shell
 if [ $# -eq 0 ]; then

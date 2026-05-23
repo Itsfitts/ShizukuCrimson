@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?textAppearanceBodySmall"
             android:textColor="?colorOnSurfaceVariant"
-            tools:text="af.shizuku.manager" />
+            tools:text="moe.shizuku.manager" />
 
         <LinearLayout
             android:layout_width="wrap_content"

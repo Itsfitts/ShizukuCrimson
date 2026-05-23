@@ -56,9 +56,9 @@ fi
 
 # 4. Check for Missing R Imports in Kotlin
 echo -n "[4/6] Checking for missing R imports in Kotlin... "
-# Find Kotlin files using R but not importing af.shizuku.manager.R
+# Find Kotlin files using R but not importing moe.shizuku.manager.R
 # Specifically look for R.layout, R.id, etc. and ignore android.R
-MISSING_R=$(grep -rl "[^a-zA-Z]R\.[a-z]" manager/src/main/java --include="*.kt" | xargs grep -L "import af.shizuku.manager.R" | grep -v "android.R")
+MISSING_R=$(grep -rl "[^a-zA-Z]R\.[a-z]" manager/src/main/java --include="*.kt" | xargs grep -L "import moe.shizuku.manager.R" | grep -v "android.R")
 if [ ! -z "$MISSING_R" ]; then
     echo -e "${COLOR_RED}FAIL${COLOR_RESET}"
     echo "$MISSING_R"
@@ -144,7 +144,7 @@ fi
 
 # 10. Check for Hardcoded Package Names in XML (AAPT Errors)
 echo -n "[10/12] Checking for hardcoded package names in XML resources... "
-HARDCODED_PKG=$(grep -rn "af.shizuku.plus.api:" manager/src/main/res --include="*.xml" 2>/dev/null)
+HARDCODED_PKG=$(grep -rn "moe.shizuku.privileged.api:" manager/src/main/res --include="*.xml" 2>/dev/null)
 if [ ! -z "$HARDCODED_PKG" ]; then
     echo -e "${COLOR_RED}FAIL${COLOR_RESET} (Avoid hardcoding the package name in resources)"
     echo "$HARDCODED_PKG"

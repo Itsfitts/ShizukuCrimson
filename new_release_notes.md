@@ -1,6 +1,6 @@
 ## Shizuku+ Major Update & Compatibility Fixes
 
-This release rolls up all changes from recent build iterations that suffered from launch crashes (due to ProGuard obfuscation) and compatibility issues (due to package renaming and provider authority conflicts). It represents a stable milestone with **full transition to the af.shizuku namespace**. Legacy compatibility has been removed to ensure a clean, single-namespace architecture.
+This release rolls up all changes from recent build iterations that suffered from launch crashes (due to ProGuard obfuscation) and compatibility issues (due to package renaming and provider authority conflicts). It represents a stable milestone with **full transition to the rikka.shizuku namespace**. Legacy compatibility has been removed to ensure a clean, single-namespace architecture.
 
 ### 🐛 Edit / Crash Release Notes from Previous Builds
 The previous releases (`r1637` through `r1690`) had the following critical issues that are now resolved:
@@ -10,7 +10,7 @@ The previous releases (`r1637` through `r1690`) had the following critical issue
 - **Sentry Vendor Diagnostic Crash:** Early initialization crashes occurred on devices with strict hidden API restrictions (TCL/Oppo/Samsung) because Sentry was probing `SystemProperties` before the `HiddenApiBypass` was activated. The initialization sequence has been reordered to prevent this.
 
 ### ✨ Highlights Added in this Build
-- **Pure af.shizuku Namespace:** Shizuku+ now exclusively uses the `af.shizuku` namespace for its API and internal communications. This eliminates conflicts with original Shizuku installations and provides a clean path forward.
+- **Pure rikka.shizuku Namespace:** Shizuku+ now exclusively uses the `rikka.shizuku` namespace for its API and internal communications. This eliminates conflicts with original Shizuku installations and provides a clean path forward.
 - **Seamless Auto-Update & Migration:** Added a robust `UpdateInstaller` that detects signature mismatches or package differentiation errors during an update. If a conflict is found, it:
   1. Auto-exports your settings.
   2. Uses a detached Shizuku/Root shell script to uninstall the old app and install the new APK.

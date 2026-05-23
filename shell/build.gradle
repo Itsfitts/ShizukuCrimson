@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "af.shizuku.shell"
+    namespace = "moe.shizuku.shell"
     defaultConfig {
         versionCode = rootProject.ext.versionCode
         versionName = rootProject.ext.versionName

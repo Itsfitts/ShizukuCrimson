@@ -15,7 +15,7 @@
     ** requireNonNull(...);
 }
 
--keepnames class af.shizuku.api.BinderContainer
+-keepnames class rikka.shizuku.BinderContainer
 
 # Missing class android.app.IProcessObserver$Stub
 # Missing class android.app.IUidObserver$Stub
@@ -28,22 +28,22 @@
 }
 
 # Entrance of Shizuku service
--keep class af.shizuku.server.ShizukuService {
+-keep class moe.shizuku.server.ShizukuService {
     public static void main(java.lang.String[]);
 }
 
 # Entrance of user service starter
--keep class af.shizuku.starter.ServiceStarter {
+-keep class moe.shizuku.starter.ServiceStarter {
     public static void main(java.lang.String[]);
 }
 
 # Entrance of shell
--keep class af.shizuku.manager.shell.Shell {
+-keep class moe.shizuku.manager.shell.Shell {
     public static void main(java.lang.String[], java.lang.String, android.os.IBinder, android.os.Handler);
 }
 
 # Keep settings fragments instantiated by name via reflection in PreferenceFragmentCompat
--keep public class af.shizuku.manager.settings.** extends androidx.fragment.app.Fragment {
+-keep public class moe.shizuku.manager.settings.** extends androidx.fragment.app.Fragment {
     public <init>();
 }
 
@@ -57,20 +57,20 @@
     public static *** d(...);
 }
 
--assumenosideeffects class af.shizuku.manager.utils.Logger {
+-assumenosideeffects class moe.shizuku.manager.utils.Logger {
     public *** d(...);
 }
 
 #noinspection ShrinkerUnresolvedReference
--assumenosideeffects class af.shizuku.server.util.Logger {
+-assumenosideeffects class moe.shizuku.server.util.Logger {
     public *** d(...);
 }
 
 # Mavericks: companion-object factories discovered via Kotlin reflection;
 # We must keep both the ViewModel and its Factory/Companion to maintain their relationship.
--keep class af.shizuku.manager.**ViewModel { *; }
--keep class af.shizuku.manager.**ViewModel$* { *; }
--keep class af.shizuku.manager.home.HomeViewModel$Companion { *; }
+-keep class moe.shizuku.manager.**ViewModel { *; }
+-keep class moe.shizuku.manager.**ViewModel$* { *; }
+-keep class moe.shizuku.manager.home.HomeViewModel$Companion { *; }
 -keep class * implements com.airbnb.mvrx.MavericksViewModelFactory { *; }
 -keep class * extends com.airbnb.mvrx.MavericksViewModel { *; }
 -keepclassmembers class * extends com.airbnb.mvrx.MavericksViewModel {
@@ -82,13 +82,13 @@
 -keepnames class com.airbnb.mvrx.** { *; }
 
 # Keep resource IDs and generated R classes to prevent "0_resource_name_obfuscated" crashes with ViewBinding.
--keep class af.shizuku.manager.R$* { *; }
+-keep class moe.shizuku.manager.R$* { *; }
 -keepclassmembers class **.R$* {
     public static <fields>;
 }
 
 # Custom View subclasses inflated from XML by class name — R8 must not rename or remove them.
--keep class af.shizuku.manager.utils.EmptyStateView { public <init>(android.content.Context, android.util.AttributeSet); }
+-keep class moe.shizuku.manager.utils.EmptyStateView { public <init>(android.content.Context, android.util.AttributeSet); }
 
 # Coroutines and Kotlin serialization
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations,AnnotationDefault
@@ -106,6 +106,6 @@
 -dontwarn androidx.compose.**
 
 -allowaccessmodification
-#-repackageclasses af.shizuku
+#-repackageclasses rikka.shizuku
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile

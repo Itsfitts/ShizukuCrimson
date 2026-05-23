@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_diagnostics"
         android:title="@string/settings_diagnostics_category"
         android:defaultValue="true">
@@ -24,9 +24,9 @@
             android:title="@string/settings_activity_log"
             android:icon="@drawable/ic_history_24"
             android:dependency="enable_activity_log" />
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_adb_management"
         android:title="@string/settings_adb_category"
         android:defaultValue="true">
@@ -49,7 +49,7 @@
             android:title="@string/settings_reset_adb_keys"
             android:summary="@string/settings_reset_adb_keys_summary"
             android:icon="@drawable/ic_autorenew" />
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
     <Preference
         android:key="help"
@@ -61,7 +61,7 @@
         android:title="@string/settings_report_bug"
         android:icon="@drawable/ic_warning_24" />
 
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
+    <moe.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_troubleshooting"
         android:title="Troubleshooting"
         android:defaultValue="false">
@@ -79,6 +79,6 @@
             android:summary="@string/home_companion_description"
             android:icon="@drawable/ic_baseline_link_24" />
 
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
+    </moe.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
 </PreferenceScreen>

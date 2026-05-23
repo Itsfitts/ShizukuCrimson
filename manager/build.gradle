@@ -16,9 +16,9 @@ plugins {
 }
 
 android {
-    namespace = "af.shizuku.manager"
+    namespace = "moe.shizuku.manager"
     defaultConfig {
-        applicationId = "af.shizuku.plus.api"
+        applicationId = "moe.shizuku.privileged.api"
         versionCode = rootProject.ext.versionCode
         versionName = rootProject.ext.versionName
         def sentryDsn = project.findProperty('SENTRY_DSN') ?: ''
@@ -106,7 +106,7 @@ aboutLibraries {
 }
 
 autoResConfig {
-    generatedClassFullName = "af.shizuku.manager.ShizukuLocales"
+    generatedClassFullName = "moe.shizuku.manager.ShizukuLocales"
     generateRes = false
     generatedArrayFirstItem = "SYSTEM"
     generateLocaleConfig = true
