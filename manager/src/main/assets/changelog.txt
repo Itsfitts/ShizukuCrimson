@@ -16,7 +16,7 @@ which is itself a fork of [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizu
 - Package renamed from `moe.shizuku.privileged.api` to `af.shizuku.plus.api`
 - App name changed to "Shizuku+"
 - Custom launcher icons and branding
-- **Coexistence Fix:** Removed conflicting `moe.shizuku.manager.permission.API_V23` declaration and updated `autoResConfig` namespace to ensure zero-overlap with original Shizuku installations.
+- **Coexistence Fix:** Updated `autoResConfig` namespace to ensure zero-overlap with original Shizuku installations.
 
 ### Architecture
 - Adopted **Mavericks (MvRx)** MVI architecture for home screen (`HomeViewModel`, `HomeState`)
@@ -95,8 +95,10 @@ which is itself a fork of [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizu
 
 ## API (`api/`)
 
-- Package retained as `rikka.shizuku` for drop-in compatibility with existing Shizuku clients
-- No breaking changes to public API surface
+- Package renamed to `af.shizuku`.
+- Legacy compatibility with `rikka.shizuku` and `moe.shizuku` has been removed to ensure a clean, single-namespace architecture.
+- All client apps must now use the `af.shizuku` namespace.
+- No other breaking changes to public API surface.
 
 ---
 

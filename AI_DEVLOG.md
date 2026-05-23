@@ -330,7 +330,7 @@ coordinator_root fix (carried to Apr 23).
 | `<include>` tags MUST NOT have `android:id` | Overrides nested view IDs, breaks `toolbarContainer` |
 | `io.sentry.auto-init=false` MUST stay in `AndroidManifest.xml` | Manual init in `ShizukuManagerApplication` — double-init crashes |
 | `Mavericks.initialize(this)` MUST be called before Koin in `ShizukuApplication.onCreate()` | Koin modules reference Mavericks state classes |
-| Mavericks ProGuard keep rules MUST stay in `proguard-rules.pro` | `-repackageclasses rikka.shizuku` breaks companion factory reflection |
+| Mavericks ProGuard keep rules MUST stay in `proguard-rules.pro` | `-repackageclasses af.shizuku` breaks companion factory reflection |
 | `AppBarActivity.rootView` is a `ViewGroup` — use `rootView.getChildAt(0)` for ViewBinding in subclasses that need it | Direct cast to binding class will fail |
 | Compose was tried and reverted — do not re-introduce without a plan | Full migration caused instability; revert was `25d796d4` |
 | Layout XML must be well-formed — validate with xmllint before pushing | Unclosed `<LinearLayout>` in two tutorial layouts caused `SAXParseException` in CI; pre-push guard check 15/15 now enforces this |
@@ -368,7 +368,7 @@ coordinator_root fix (carried to Apr 23).
 
 ## Technical Remediation: Global Namespace Migration & CI Fixes (May 19, 2026)
 
-**Context:** Completing the transition from rikka.shizuku to af.shizuku and aligning CI for JDK 21 / NDK 29.
+**Context:** Completing the transition from rikka.shizuku to af.shizuku and aligning CI for JDK 21 / NDK 29. Legacy compatibility has been removed to ensure a clean, single-namespace architecture.
 
 **Done:**
 - **Global Package Rename:** Migrated all source files (Java, Kotlin, AIDL), manifest, and resources to the af.shizuku namespace.
@@ -378,7 +378,6 @@ coordinator_root fix (carried to Apr 23).
 - **Documentation:** Updated READMEs and local constants to reflect the new API identity.
 
 **Notable:**
-- Ensured binary compatibility keys (rikka.shizuku.intent.extra.BINDER) are preserved in the server for legacy client support.
-- Fixed local build environment issues by properly identifying NDK toolchain paths and AAPT2 architecture requirements.
-
-- **Compatibility Fixes:** Restored legacy binder intent keys (rikka.shizuku and moe.shizuku) and updated rish C++ JNI signatures for the new af.rish namespace.
+- Removed binary compatibility keys (rikka.shizuku.intent.extra.BINDER) from the server.
+- Removed legacy moe.shizuku and rikka.shizuku intent keys and descriptor handling.
+- Updated rish C++ JNI signatures for the new af.rish namespace.
