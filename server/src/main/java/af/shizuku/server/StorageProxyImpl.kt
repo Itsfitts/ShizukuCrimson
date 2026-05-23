@@ -29,8 +29,23 @@ class StorageProxyImpl : IStorageProxy.Stub() {
 
     private fun openViaShellFallback(path: String, mode: Int): ParcelFileDescriptor? {
         // Implementation for OneUI 8+ fallback using raw shell redirections 
-        // to handle stricter storage access protection
-        return null 
+        // to handle stricter storage access protection. 
+        // We create a pipe and 'cat' the file into it from a shell process 
+        // that might have better namespace access on some restricted Samsung builds.
+        return try {
+            val pipe = ParcelFileDescriptor.createPipe()
+            val readSide = pipe[0]
+            val writeSide = pipe[1]
+            
+            val cmd = arrayOf("sh", "-c", "cat \"$path\" > /proc/self/fd/${writeSide.fd}")
+            Runtime.getRuntime().exec(cmd)
+            
+            // The shell process will exit once cat is done. 
+            // We return the read side of the pipe.
+            readSide
+        } catch (e: Exception) {
+            null
+        }
     }
 
     override fun exists(path: String?): Boolean {
@@ -47,9 +62,9 @@ class StorageProxyImpl : IStorageProxy.Stub() {
         }
     }
 
-    override fun listFiles(path: String?): List<String> {
-        if (path == null) return emptyList()
-        return File(path).list()?.toList() ?: emptyList()
+    override fun listFiles(path: String?): List<String>? {
+        if (path == null) return null
+        return File(path).list()?.toList()
     }
 
     override fun getFileInfo(path: String?): Bundle {

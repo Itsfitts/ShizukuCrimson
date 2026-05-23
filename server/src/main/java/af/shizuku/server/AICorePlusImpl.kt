@@ -381,8 +381,14 @@ class AICorePlusImpl : IAICorePlus.Stub() {
         bundle.putString("android_version", android.os.Build.VERSION.RELEASE)
         bundle.putInt("sdk_int", android.os.Build.VERSION.SDK_INT)
         
+        // Manufacturer skin detection (synchronized with Manager bridge)
+        val brand = android.os.Build.BRAND.lowercase()
+        val manufacturer = android.os.Build.MANUFACTURER.lowercase()
+        bundle.putBoolean("is_samsung", brand.contains("samsung") || manufacturer.contains("samsung"))
+        bundle.putBoolean("is_xiaomi", brand.contains("xiaomi") || manufacturer.contains("xiaomi"))
+        
         Log.d(TAG, "System context: NPU=${bundle.getBoolean("npu_available")}, " +
-                "SDK=${bundle.getInt("sdk_int")}")
+                "SDK=${bundle.getInt("sdk_int")}, Samsung=${bundle.getBoolean("is_samsung")}")
         
         return bundle
     }

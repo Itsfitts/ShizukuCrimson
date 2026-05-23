@@ -73,6 +73,15 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     public static void main(String[] args) {
         try {
+            // Bypass Hidden API restrictions for the server process
+            try {
+                Class.forName("org.lsposed.hiddenapibypass.HiddenApiBypass")
+                    .getMethod("setHiddenApiExemptions", String[].class)
+                    .invoke(null, (Object) new String[]{""});
+            } catch (Throwable tr) {
+                Log.w("ShizukuService", "Failed to initialize HiddenApiBypass", tr);
+            }
+
             DdmHandleAppName.setAppName("shizuku_server", 0);
         } catch (Throwable tr) {
             Log.d("ShizukuService", "Failed to set process name via DdmHandleAppName", tr);
@@ -498,12 +507,19 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         ClientRecord caller = clientManager.findClient(callingUid, callingPid);
         String callingPkg = (caller != null) ? caller.packageName : "unknown";
         
+        // Ensure a default PATH is available if not provided, otherwise am/pm/etc won't be found
+        // in environments with limited inherited shell environment.
+        if (env == null) {
+            env = new String[]{"PATH=/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin"};
+        }
+
         // SU Bridge interception: strip su wrapper and run command directly via Shizuku privileges
         if (isFeatureEnabled("su_bridge") && cmd != null && cmd.length > 0) {
             String base = cmd[0];
             if (base.equals("su") || base.endsWith("/su")) {
                 dispatchLog(callingPkg, "su " + String.join(" ", cmd));
                 java.util.List<String> args = new java.util.ArrayList<>();
+                java.util.List<String> extraFlags = new java.util.ArrayList<>();
                 boolean inCommand = false;
                 boolean skipNext = false;
                 for (int i = 1; i < cmd.length; i++) {
@@ -512,11 +528,17 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                         args.add(cmd[i]);
                     } else if (cmd[i].equals("-c") || cmd[i].equals("--command")) {
                         inCommand = true;
+                    } else if (cmd[i].equals("-u") || cmd[i].equals("--user") || 
+                               cmd[i].equals("-cn") || cmd[i].equals("--context")) {
+                        // Preserve user and context flags for proper namespace/SELinux support
+                        extraFlags.add(cmd[i]);
+                        if (i + 1 < cmd.length) {
+                            extraFlags.add(cmd[i + 1]);
+                            skipNext = true;
+                        }
                     } else if (cmd[i].equals("-s") || cmd[i].equals("--shell") || 
-                               cmd[i].equals("-cn") || cmd[i].equals("--context") ||
-                               cmd[i].equals("-g") || cmd[i].equals("--group") ||
-                               cmd[i].equals("-u") || cmd[i].equals("--user")) {
-                        // These flags take a following argument — skip both
+                               cmd[i].equals("-g") || cmd[i].equals("--group")) {
+                        // These flags take a following argument — skip both for sh compatibility
                         skipNext = true;
                     } else if (cmd[i].equals("-v") || cmd[i].equals("-V") || cmd[i].equals("--version")) {
                         // Return a fake version string for su
@@ -527,7 +549,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     } else if (cmd[i].equals("-p") || cmd[i].equals("-m") || cmd[i].equals("--preserve-environment")) {
                         // Environment preservation flags — skip
                     } else if (!cmd[i].startsWith("-") && args.isEmpty()) {
-                        // user/uid argument (e.g. "0", "root") — skip it
+                        // Positional UID argument (e.g. "0") — convert to --user flag
+                        extraFlags.add("--user");
+                        extraFlags.add(cmd[i]);
                     } else if (cmd[i].startsWith("-")) {
                         // Unknown flag — skip safely
                     } else {
@@ -540,28 +564,30 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     if (joined.length() > 65536) {
                         LOGGER.w("SUBridge: command too long (" + joined.length() + " chars), skipping interception");
                     } else {
+                        // If user or context is specified, we must use the actual su binary
+                        // because sh -c does not support these namespaces natively.
+                        if (!extraFlags.isEmpty()) {
+                             String realSuPath = plusSettingsMap.getOrDefault("su_path", "/system/xbin/su");
+                             java.util.List<String> suCmd = new java.util.ArrayList<>();
+                             suCmd.add(realSuPath);
+                             suCmd.addAll(extraFlags);
+                             suCmd.add("-c");
+                             suCmd.add(joined);
+                             LOGGER.i("SUBridge: delegated su call with flags to " + realSuPath);
+                             return newProcessInternal(suCmd.toArray(new String[0]), env, dir);
+                        }
+
                         cmd = new String[]{"sh", "-c", joined};
                         LOGGER.i("SUBridge: intercepted su call, running as sh");
                         
                         // Inject actual su path into environment PATH
-                        String realSuPath = plusSettingsMap.get( "su_path");
+                        String realSuPath = plusSettingsMap.get("su_path");
                         if (realSuPath != null && realSuPath.contains("/")) {
                             String suDir = realSuPath.substring(0, realSuPath.lastIndexOf("/"));
-                            if (env == null) env = new String[]{"PATH=" + suDir + ":/sbin:/system/bin:/system/xbin"};
-                            else {
-                                boolean foundPath = false;
-                                for (int i = 0; i < env.length; i++) {
-                                    if (env[i].startsWith("PATH=")) {
-                                        env[i] = "PATH=" + suDir + ":" + env[i].substring(5);
-                                        foundPath = true;
-                                        break;
-                                    }
-                                }
-                                if (!foundPath) {
-                                    String[] newEnv = new String[env.length + 1];
-                                    System.arraycopy(env, 0, newEnv, 0, env.length);
-                                    newEnv[env.length] = "PATH=" + suDir + ":/sbin:/system/bin:/system/xbin";
-                                    env = newEnv;
+                            for (int i = 0; i < env.length; i++) {
+                                if (env[i].startsWith("PATH=")) {
+                                    env[i] = "PATH=" + suDir + ":" + env[i].substring(5);
+                                    break;
                                 }
                             }
                         }

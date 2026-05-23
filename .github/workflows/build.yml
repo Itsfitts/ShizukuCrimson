@@ -8,7 +8,26 @@ on:
   workflow_dispatch:
 
 jobs:
+  validate:
+    name: Code Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Run Pre-Push Guard
+        run: |
+          chmod +x pre-push-guard/scripts/pre_push_check.sh
+          # Set CI flag to skip submodule push check
+          export CI=true
+          ./pre-push-guard/scripts/pre_push_check.sh
+
   build:
+    name: Build Manager and Server
+    needs: validate
     runs-on: ubuntu-latest
 
     steps:
@@ -25,19 +44,24 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Accept Android SDK Licenses & Install CMake and NDK
-      run: |
-        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
-        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmake;3.31.0" "ndk;29.0.13113456"
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Accept Android SDK Licenses
+      run: yes | sdkmanager --licenses || true
+
+    - name: Install NDK and CMake
+      run: sdkmanager "ndk;29.0.13113456" "cmake;3.31.0"
 
     - name: Grant Execute Permission for Gradle
       run: chmod +x gradlew
 
     - name: Build Project
-      run: ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ShizukuCrimson-Manager
+        name: ShizukuCrimson-Manager-Debug
         path: out/apk/*.apk
+        if-no-files-found: error
