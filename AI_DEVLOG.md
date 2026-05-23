@@ -380,4 +380,4 @@ coordinator_root fix (carried to Apr 23).
 **Notable:**
 - Removed binary compatibility keys (rikka.shizuku.intent.extra.BINDER) from the server.
 - Removed legacy moe.shizuku and rikka.shizuku intent keys and descriptor handling.
-- Updated rish C++ JNI signatures for the new moe.shizuku.shell namespace.
+- Updated rish C++ JNI signatures for the new rikka.shizuku.shell namespace.

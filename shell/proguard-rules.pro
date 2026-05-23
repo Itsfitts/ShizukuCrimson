@@ -1,4 +1,4 @@
--keep class moe.shizuku.shell.ShizukuShellLoader {
+-keep class rikka.shizuku.shell.ShizukuShellLoader {
     public static void main(java.lang.String[]);
 }
 

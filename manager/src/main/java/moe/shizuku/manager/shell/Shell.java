@@ -4,8 +4,8 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 
-import moe.shizuku.shell.Rish;
-import moe.shizuku.shell.RishConfig;
+import rikka.rish.Rish;
+import rikka.rish.RishConfig;
 import rikka.shizuku.Shizuku;
 import rikka.shizuku.ShizukuApiConstants;
 

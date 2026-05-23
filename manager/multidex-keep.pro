@@ -3,7 +3,7 @@
 -keep class rikka.shizuku.** { *; }
 -keep class rikka.shizuku.common.** { *; }
 -keep class rikka.shizuku.ShizukuApiConstants { *; }
--keep class moe.shizuku.shell.** { *; }
+-keep class rikka.shizuku.shell.** { *; }
 -keep class rikka.hidden.compat.** { *; }
 -keep class rikka.parcelablelist.** { *; }
 -keep class com.google.gson.** { *; }

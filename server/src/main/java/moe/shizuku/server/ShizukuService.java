@@ -60,7 +60,7 @@ import rikka.hidden.compat.PackageManagerApis;
 import rikka.hidden.compat.PermissionManagerApis;
 import rikka.hidden.compat.UserManagerApis;
 import rikka.parcelablelist.ParcelableListSlice;
-import moe.shizuku.shell.RishConfig;
+import rikka.rish.RishConfig;
 import rikka.shizuku.ShizukuApiConstants;
 import moe.shizuku.server.api.IContentProviderUtils;
 import moe.shizuku.server.util.HandlerUtil;

@@ -1,4 +1,4 @@
-package moe.shizuku.shell;
+package rikka.shizuku.shell;
 
 import android.app.ActivityManagerNative;
 import android.app.IActivityManager;

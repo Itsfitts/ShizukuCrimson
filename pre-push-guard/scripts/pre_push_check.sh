@@ -178,10 +178,10 @@ fi
 # 13. Check for stale package paths in JNI C++ files
 # After a package rename, FindClass() calls in JNI_OnLoad must be updated.
 # A stale path causes RegisterNatives to SIGABRT the process on launch.
-echo -n "[13/14] Checking for stale JNI class paths (moe/shizuku)... "
-STALE_JNI=$(grep -rn "moe/shizuku" manager/src/main/jni/ 2>/dev/null)
+echo -n "[13/14] Checking for stale JNI class paths (af/shizuku)... "
+STALE_JNI=$(grep -rn "af/shizuku" manager/src/main/jni/ 2>/dev/null)
 if [ ! -z "$STALE_JNI" ]; then
-    echo -e "${COLOR_RED}FAIL${COLOR_RESET} (Old package path found in JNI — update FindClass() calls to af/shizuku/...)"
+    echo -e "${COLOR_RED}FAIL${COLOR_RESET} (Old package path found in JNI — update FindClass() calls to moe/shizuku/...)"
     echo "$STALE_JNI"
     ERRORS=$((ERRORS + 1))
 else
@@ -190,7 +190,7 @@ fi
 
 # 14. Check that JniSmokeTest exists (guards against accidental deletion)
 echo -n "[14/14] Checking JniSmokeTest exists... "
-SMOKE_TEST="manager/src/androidTest/java/af/shizuku/manager/JniSmokeTest.kt"
+SMOKE_TEST="manager/src/androidTest/java/moe/shizuku/manager/JniSmokeTest.kt"
 if [ ! -f "$SMOKE_TEST" ]; then
     echo -e "${COLOR_RED}FAIL${COLOR_RESET} (JniSmokeTest.kt is missing — do not delete the JNI smoke test)"
     ERRORS=$((ERRORS + 1))

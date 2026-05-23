@@ -13,7 +13,7 @@ import moe.shizuku.server.IAICorePlus;
 import moe.shizuku.server.IStorageProxy;
 import moe.shizuku.server.IVirtualMachineManager;
 import moe.shizuku.server.IShizukuService;
-import moe.shizuku.shell.RishConfig;
+import rikka.rish.RishConfig;
 import rikka.shizuku.Shizuku;
 import rikka.shizuku.ShizukuApiConstants;
 import moe.shizuku.manager.utils.Logger;
