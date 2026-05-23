@@ -25,5 +25,6 @@ dependencies {
     implementation project(":server-shared")
     implementation libs.rikkax.core
     implementation libs.hidden.compat
+    implementation libs.hiddenapibypass
     compileOnly libs.hidden.stub
 }

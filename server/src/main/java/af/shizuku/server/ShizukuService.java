@@ -74,17 +74,11 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     public static void main(String[] args) {
         try {
             // Bypass Hidden API restrictions for the server process
-            try {
-                Class.forName("org.lsposed.hiddenapibypass.HiddenApiBypass")
-                    .getMethod("setHiddenApiExemptions", String[].class)
-                    .invoke(null, (Object) new String[]{""});
-            } catch (Throwable tr) {
-                Log.w("ShizukuService", "Failed to initialize HiddenApiBypass", tr);
-            }
+            org.lsposed.hiddenapibypass.HiddenApiBypass.setHiddenApiExemptions("");
 
             DdmHandleAppName.setAppName("shizuku_server", 0);
         } catch (Throwable tr) {
-            Log.d("ShizukuService", "Failed to set process name via DdmHandleAppName", tr);
+            Log.w("ShizukuService", "Failed to initialize server environment", tr);
         }
         
         Log.i("ShizukuService", "Shizuku server starting...");
@@ -507,10 +501,24 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         ClientRecord caller = clientManager.findClient(callingUid, callingPid);
         String callingPkg = (caller != null) ? caller.packageName : "unknown";
         
-        // Ensure a default PATH is available if not provided, otherwise am/pm/etc won't be found
-        // in environments with limited inherited shell environment.
+        // Ensure a default PATH is available.
+        String defaultPath = "PATH=/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin";
         if (env == null) {
-            env = new String[]{"PATH=/product/bin:/apex/com.android.runtime/bin:/apex/com.android.art/bin:/system_ext/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:/vendor/xbin"};
+            env = new String[]{defaultPath};
+        } else {
+            boolean hasPath = false;
+            for (String s : env) {
+                if (s != null && s.startsWith("PATH=")) {
+                    hasPath = true;
+                    break;
+                }
+            }
+            if (!hasPath) {
+                String[] newEnv = new String[env.length + 1];
+                System.arraycopy(env, 0, newEnv, 0, env.length);
+                newEnv[env.length] = defaultPath;
+                env = newEnv;
+            }
         }
 
         // SU Bridge interception: strip su wrapper and run command directly via Shizuku privileges
