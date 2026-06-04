@@ -1004,6 +1004,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 } else {
                     PermissionManagerApis.revokeRuntimePermission(packageName, PERMISSION, userId);
                 }
+                break;
             }
         }
     }
@@ -1016,20 +1017,24 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
         if (allowRuntimePermission && (mask & ConfigManager.MASK_PERMISSION) != 0) {
             int userId = UserHandleCompat.getUserId(uid);
-            for (String packageName : PackageManagerApis.getPackagesForUidNoThrow(uid)) {
-                PackageInfo pi = PackageManagerApis.getPackageInfoNoThrow(packageName, PackageManager.GET_PERMISSIONS, userId);
-                if (pi == null || pi.requestedPermissions == null) {
-                    continue;
-                }
 
-                try {
-                    if (PermissionManagerApis.checkPermission(PERMISSION, uid) == PackageManager.PERMISSION_GRANTED ||
-                        PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_LEGACY, uid) == PackageManager.PERMISSION_GRANTED ||
-                        PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_ORIGINAL, uid) == PackageManager.PERMISSION_GRANTED) {
+            boolean hasPermission = false;
+            try {
+                if (PermissionManagerApis.checkPermission(PERMISSION, uid) == PackageManager.PERMISSION_GRANTED ||
+                    PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_LEGACY, uid) == PackageManager.PERMISSION_GRANTED ||
+                    PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_ORIGINAL, uid) == PackageManager.PERMISSION_GRANTED) {
+                    hasPermission = true;
+                }
+            } catch (Throwable e) {
+                LOGGER.w("getFlagsForUid");
+            }
+
+            if (hasPermission) {
+                for (String packageName : PackageManagerApis.getPackagesForUidNoThrow(uid)) {
+                    PackageInfo pi = PackageManagerApis.getPackageInfoNoThrow(packageName, PackageManager.GET_PERMISSIONS, userId);
+                    if (pi != null && pi.requestedPermissions != null) {
                         return ConfigManager.FLAG_ALLOWED;
                     }
-                } catch (Throwable e) {
-                    LOGGER.w("getFlagsForUid");
                 }
             }
         }
@@ -1082,6 +1087,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     PermissionManagerApis.revokeRuntimePermission(packageName, PERMISSION, userId);
                     onPermissionRevoked(packageName);
                 }
+                break;
             }
         }
 
