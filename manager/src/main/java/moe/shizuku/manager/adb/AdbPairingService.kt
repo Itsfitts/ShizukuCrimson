@@ -1,7 +1,13 @@
 package moe.shizuku.manager.adb
 
 import android.annotation.TargetApi
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.app.ForegroundServiceStartNotAllowedException
+import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -11,7 +17,17 @@ import android.util.Log
 import timber.log.Timber
 import android.widget.Toast
 import androidx.lifecycle.Observer
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CoroutineDispatcher
 import moe.shizuku.manager.MainActivity
 import moe.shizuku.manager.R
 import moe.shizuku.manager.ShizukuSettings

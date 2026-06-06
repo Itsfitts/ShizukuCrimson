@@ -1091,8 +1091,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
                 try {
                     if (PermissionManagerApis.checkPermission(PERMISSION, uid) == PackageManager.PERMISSION_GRANTED ||
-                        PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_LEGACY, uid) == PackageManager.PERMISSION_GRANTED ||
-                        PermissionManagerApis.checkPermission(ServerConstants.PERMISSION_ORIGINAL, uid) == PackageManager.PERMISSION_GRANTED) {
+                        PermissionManagerApis.checkPermission("moe.shizuku.manager.permission.API_V23", uid) == PackageManager.PERMISSION_GRANTED ||
+                        PermissionManagerApis.checkPermission("moe.shizuku.manager.permission.API_V23", uid) == PackageManager.PERMISSION_GRANTED) {
                         return ConfigManager.FLAG_ALLOWED;
                     }
                 } catch (Throwable e) {
@@ -1192,8 +1192,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     list.add(pi);
                 } else if (pi.requestedPermissions != null && (
                         ArraysKt.contains(pi.requestedPermissions, PERMISSION) ||
-                        ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_LEGACY) ||
-                        ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_ORIGINAL)
+                        ArraysKt.contains(pi.requestedPermissions, "moe.shizuku.manager.permission.API_V23") ||
+                        ArraysKt.contains(pi.requestedPermissions, "moe.shizuku.manager.permission.API_V23")
                 )) {
                     list.add(pi);
                 } else if (pi.applicationInfo.metaData != null
@@ -1252,8 +1252,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 .stream()
                 .filter(pi -> pi != null && pi.requestedPermissions != null)
                 .filter(pi -> ArraysKt.contains(pi.requestedPermissions, PERMISSION) || 
-                              ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_LEGACY) ||
-                              ArraysKt.contains(pi.requestedPermissions, ServerConstants.PERMISSION_ORIGINAL));
+                              ArraysKt.contains(pi.requestedPermissions, "moe.shizuku.manager.permission.API_V23") ||
+                              ArraysKt.contains(pi.requestedPermissions, "moe.shizuku.manager.permission.API_V23"));
 
             LOGGER.i("sending binders");
             packages

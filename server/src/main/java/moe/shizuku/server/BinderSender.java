@@ -31,8 +31,8 @@ public class BinderSender {
 
     private static final String PERMISSION_MANAGER = "rikka.shizuku.plus.permission.MANAGER";
     private static final String PERMISSION = ServerConstants.PERMISSION;
-    private static final String PERMISSION_LEGACY = ServerConstants.PERMISSION_LEGACY;
-    private static final String PERMISSION_ORIGINAL = ServerConstants.PERMISSION_ORIGINAL;
+    private static final String PERMISSION_LEGACY = "moe.shizuku.manager.permission.API_V23";
+    private static final String PERMISSION_ORIGINAL = "moe.shizuku.manager.permission.API_V23";
 
     private static ShizukuService sShizukuService;
 

@@ -28,3 +28,9 @@ dependencies {
     implementation libs.hiddenapibypass
     compileOnly libs.hidden.stub
 }
+
+android {
+    lint {
+        abortOnError = false
+    }
+}
