@@ -93,8 +93,11 @@ v_current = (uintptr_t) v + v_size - sizeof(char *); \
 #define ARG_PUSH_DEBUG_ONLY(v, arg)
 #endif
 
+    char dex_path_copy[PATH_MAX]{0};
+    strncpy(dex_path_copy, dex_path, PATH_MAX - 1);
+
     char lib_path[PATH_MAX]{0};
-    snprintf(lib_path, PATH_MAX, "%s/lib/%s", dirname(dex_path), ABI);
+    snprintf(lib_path, PATH_MAX, "%s/lib/%s", dirname(dex_path_copy), ABI);
 
     ARG(argv)
     ARG_PUSH(argv, "/system/bin/app_process")
