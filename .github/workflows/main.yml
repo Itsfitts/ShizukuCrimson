@@ -296,9 +296,9 @@ jobs:
       - name: Read Version
         id: version
         run: |
-          VERSION=$(cat version.txt)
+          VERSION=$(cat version.txt | tr -d '\r' | xargs)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          VERSION_NUM=$(echo "$VERSION" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+')
+          VERSION_NUM=$(echo "$VERSION" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+' | tr -d '[:space:]')
           echo "TAG_NAME=v${VERSION_NUM}" >> $GITHUB_ENV
 
       - name: Create Release Tag
@@ -383,7 +383,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG_NAME="${VERSION}"
           APK_FILE=$(find files -name "*.apk" -type f | head -1)
           # Always create a full release as requested
           gh release create "$TAG_NAME" "$APK_FILE" --title "$VERSION" --notes-file release_notes.md
