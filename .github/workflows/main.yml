@@ -158,18 +158,30 @@ jobs:
           
           # Verify if signed
           if [ "$IS_DEBUG" = "false" ]; then
-            if ! unzip -l "$FILE" | grep -q "META-INF/.*\.RSA"; then
+            BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
+            APKSIGNER="$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner"
+            if ! $APKSIGNER verify "$FILE" >/dev/null 2>&1; then
               echo "WARNING: Release APK appears to be UNSIGNED!"
               # Attempt to sign if key.jks exists (failsafe using apksigner for v2+ support)
               if [ -f "key.jks" ]; then
                 echo "Attempting manual signing failsafe with apksigner..."
-                BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
-                $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks key.jks \
-                  --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
-                  --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-                  --key-pass "pass:${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" \
+                if [ -n "${{ secrets.KEYSTORE }}" ]; then
+                  KS_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
+                  ALIAS="${{ secrets.KEYSTORE_ALIAS }}"
+                  KEY_PASS="${{ secrets.KEYSTORE_ALIAS_PASSWORD }}"
+                else
+                  KS_PASS="android"
+                  ALIAS="androiddebugkey"
+                  KEY_PASS="android"
+                fi
+                $APKSIGNER sign --ks key.jks \
+                  --ks-pass "pass:$KS_PASS" \
+                  --ks-key-alias "$ALIAS" \
+                  --key-pass "pass:$KEY_PASS" \
                   "$FILE"
               fi
+            else
+              echo "Release APK is already signed successfully!"
             fi
           fi
 
