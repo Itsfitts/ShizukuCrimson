@@ -279,3 +279,23 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
         override fun isHeader(view: View): Boolean = view.tag == "category_header"
     }
 }
+
+fun androidx.preference.Preference.refresh() {
+    try {
+        val method = androidx.preference.Preference::class.java.getDeclaredMethod("notifyChanged")
+        method.isAccessible = true
+        method.invoke(this)
+    } catch (e: Exception) {
+        // Fallback or ignore
+    }
+}
+
+fun androidx.preference.Preference.performClickReflection() {
+    try {
+        val method = androidx.preference.Preference::class.java.getDeclaredMethod("onClick")
+        method.isAccessible = true
+        method.invoke(this)
+    } catch (e: Exception) {
+        // Fallback or ignore
+    }
+}

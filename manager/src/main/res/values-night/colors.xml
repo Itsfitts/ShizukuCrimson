@@ -13,8 +13,11 @@
 
     <!-- Fallback system colors for Android versions without dynamic theming (night) -->
     <color name="system_accent1_100">#4A4458</color>
+    <color name="system_accent1_400">#CCC2DC</color>
     <color name="system_accent1_600">#D0BCFF</color>
     <color name="system_accent1_700">#EADDFF</color>
+    <color name="system_accent2_600">#CCC2DC</color>
+    <color name="system_accent3_600">#EFB8C8</color>
     <color name="system_neutral_outline">#938F99</color>
     <color name="system_neutral_variant40">#CCC2DC</color>
     <color name="system_neutral_variant60">#E8DEF8</color>
