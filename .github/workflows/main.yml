@@ -298,10 +298,11 @@ jobs:
         run: |
           VERSION=$(cat version.txt)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          VERSION_NUM=$(echo "$VERSION" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+')
+          echo "TAG_NAME=v${VERSION_NUM}" >> $GITHUB_ENV
 
       - name: Create Release Tag
         run: |
-          TAG_NAME="${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
@@ -322,7 +323,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG_NAME="${VERSION}"
           # Find the previous release tag (ignoring current and non-version tags)
           PREV_TAG=$(git tag --list '*13.6.0.r*' --sort=-creatordate | grep -v "^${TAG_NAME}$" | head -1)
           
