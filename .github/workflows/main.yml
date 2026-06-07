@@ -123,10 +123,10 @@ jobs:
           GIT_COUNT=$(git rev-list --count HEAD)
           
           if [ "$IS_PRERELEASE" = "true" ]; then
-            VERSION="Shizuku+ ${BASE_VERSION}.r${GIT_COUNT}"
+            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS="-Pbeta"
           else
-            VERSION="Shizuku+ ${BASE_VERSION}.r${GIT_COUNT}"
+            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS=""
           fi
           
@@ -298,8 +298,7 @@ jobs:
         run: |
           VERSION=$(cat version.txt | tr -d '\r' | xargs)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          VERSION_NUM=$(echo "$VERSION" | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+' | tr -d '[:space:]')
-          echo "TAG_NAME=v${VERSION_NUM}" >> $GITHUB_ENV
+          echo "TAG_NAME=$VERSION" >> $GITHUB_ENV
 
       - name: Create Release Tag
         run: |
@@ -385,4 +384,4 @@ jobs:
         run: |
           APK_FILE=$(find files -name "*.apk" -type f | head -1)
           # Always create a full release as requested
-          gh release create "$TAG_NAME" "$APK_FILE" --title "$VERSION" --notes-file release_notes.md
+          gh release create "$TAG_NAME" "$APK_FILE" --title "Shizuku+ $VERSION" --notes-file release_notes.md
