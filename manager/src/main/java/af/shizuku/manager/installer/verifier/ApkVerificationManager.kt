@@ -2,6 +2,9 @@ package af.shizuku.manager.installer.verifier
 
 import android.content.SharedPreferences
 import java.io.File
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 
 data class VerificationResult(
     val isSafe: Boolean,

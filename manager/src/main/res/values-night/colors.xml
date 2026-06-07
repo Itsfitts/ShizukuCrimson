@@ -10,4 +10,12 @@
     <color name="widget_subtitle">#CAC4D0</color>
     <color name="widget_start_container">#4A4458</color>
     <color name="widget_start_icon">#E8DEF8</color>
+
+    <!-- Fallback system colors for Android versions without dynamic theming (night) -->
+    <color name="system_accent1_100">#4A4458</color>
+    <color name="system_accent1_600">#D0BCFF</color>
+    <color name="system_accent1_700">#EADDFF</color>
+    <color name="system_neutral_outline">#938F99</color>
+    <color name="system_neutral_variant40">#CCC2DC</color>
+    <color name="system_neutral_variant60">#E8DEF8</color>
 </resources>

@@ -308,7 +308,6 @@ class ShizukuApplication : Application(), Configuration.Provider {
             }
         }
 
-        val userManager = getSystemService(Context.USER_SERVICE) as? UserManager
         if (userManager == null || userManager.isUserUnlocked) {
             try {
                 RemoteDbSyncWorker.schedule(this)

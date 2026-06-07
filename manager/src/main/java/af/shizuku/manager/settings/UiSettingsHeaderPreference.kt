@@ -56,7 +56,7 @@ class UiSettingsHeaderPreference @JvmOverloads constructor(
                     "squircle" -> ShapeAppearanceModel.builder()
                         .setAllCorners(com.google.android.material.shape.CornerFamily.ROUNDED, 24f * density)
                         .build()
-                    "zen", else -> {
+                    else -> {
                         // Asymmetrical Shape Treatments
                         if (isDroplet) {
                             ShapeAppearanceModel.builder()
@@ -98,7 +98,7 @@ class UiSettingsHeaderPreference @JvmOverloads constructor(
                 "classic" -> "Classic Material 2 standard rounded shapes."
                 "modern" -> "Modern Material 3 extra-large rounded containers."
                 "squircle" -> "Organic squircle containers for smooth continuous rounding."
-                "zen", else -> "Zen asymmetrical leaf and droplet icon container shapes."
+                else -> "Zen asymmetrical leaf and droplet icon container shapes."
             }
         }
     }
