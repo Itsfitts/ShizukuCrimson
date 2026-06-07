@@ -86,13 +86,24 @@ jobs:
           java-version: '21'
 
       - name: Create signing.properties
-        if: ${{ env.IS_DEBUG == 'false' && env.KEYSTORE != '' }}
         run: |
-          echo KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} > signing.properties
-          echo KEYSTORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} >> signing.properties
-          echo KEYSTORE_ALIAS_PASSWORD='${{ secrets.KEYSTORE_ALIAS_PASSWORD }}' >> signing.properties
-          echo KEYSTORE_FILE=${{ github.workspace }}/key.jks >> signing.properties
-          printf "%s" "${{ secrets.KEYSTORE }}" | base64 --decode > key.jks
+          if [ -n "${{ secrets.KEYSTORE }}" ]; then
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" > signing.properties
+            echo "KEYSTORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }}" >> signing.properties
+            echo "KEYSTORE_ALIAS_PASSWORD='${{ secrets.KEYSTORE_ALIAS_PASSWORD }}'" >> signing.properties
+            echo "KEYSTORE_FILE=${{ github.workspace }}/key.jks" >> signing.properties
+            printf "%s" "${{ secrets.KEYSTORE }}" | base64 --decode > key.jks
+          else
+            echo "Using fallback debug key for release signing"
+            echo "KEYSTORE_PASSWORD=android" > signing.properties
+            echo "KEYSTORE_ALIAS=androiddebugkey" >> signing.properties
+            echo "KEYSTORE_ALIAS_PASSWORD=android" >> signing.properties
+            echo "KEYSTORE_FILE=${{ github.workspace }}/key.jks" >> signing.properties
+            keytool -genkeypair -v -keystore key.jks -storepass android \
+              -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug, O=Android, C=US" 2>/dev/null
+          fi
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
