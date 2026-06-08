@@ -15,7 +15,9 @@
     ** requireNonNull(...);
 }
 
--keepnames class af.shizuku.api.BinderContainer
+-keep class af.shizuku.api.BinderContainer { *; }
+-keep class rikka.shizuku.BinderContainer { *; }
+-keep class moe.shizuku.api.BinderContainer { *; }
 
 # Missing class android.app.IProcessObserver$Stub
 # Missing class android.app.IUidObserver$Stub
