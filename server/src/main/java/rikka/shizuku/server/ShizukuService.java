@@ -103,7 +103,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private static final List<String> serverLogs = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
     private static final int MAX_SERVER_LOGS = 100;
     private final ShizukuConfigManager configManager;
-    private final int managerAppId;
+    private volatile int managerAppId;
     private final VirtualMachineManagerImpl virtualMachineManager = new VirtualMachineManagerImpl();
     private final StorageProxyImpl storageProxy = new StorageProxyImpl();
     private final AICorePlusImpl aiCorePlus;
@@ -141,7 +141,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         }
 
         assert ai != null;
-        managerAppId = ai.uid;
+        managerAppId = UserHandleCompat.getAppId(ai.uid);
+        LOGGER.i("manager app uid=%d (appId=%d)", ai.uid, managerAppId);
 
         configManager = getConfigManager();
         clientManager = getClientManager();
@@ -196,9 +197,40 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         return new ShizukuConfigManager();
     }
 
+    /**
+     * Returns the current manager appId, refreshing from PackageManager if the cached value
+     * no longer matches any installed package. This handles APK reinstalls that change the UID.
+     */
+    private int getManagerAppId() {
+        return managerAppId;
+    }
+
+    /**
+     * Re-fetches the manager UID from PackageManager and updates the cache.
+     * Called when the manager app reconnects (e.g. after reinstall).
+     */
+    private void refreshManagerAppId() {
+        ApplicationInfo ai = getManagerApplicationInfo();
+        if (ai != null) {
+            int freshAppId = UserHandleCompat.getAppId(ai.uid);
+            if (freshAppId != managerAppId) {
+                LOGGER.w("manager appId changed: old=%d new=%d (APK reinstall?), refreshing", managerAppId, freshAppId);
+                managerAppId = freshAppId;
+            }
+        }
+    }
+
     @Override
     public boolean checkCallerManagerPermission(String func, int callingUid, int callingPid) {
-        return UserHandleCompat.getAppId(callingUid) == managerAppId;
+        int callerAppId = UserHandleCompat.getAppId(callingUid);
+        if (callerAppId == managerAppId) return true;
+        // Stale cache guard: if the caller claims to be the manager package, refresh and re-check
+        List<String> packages = PackageManagerApis.getPackagesForUidNoThrow(callingUid);
+        if (packages.contains(MANAGER_APPLICATION_ID)) {
+            refreshManagerAppId();
+            return callerAppId == managerAppId;
+        }
+        return false;
     }
 
     private int checkCallingPermission() {
@@ -220,7 +252,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public boolean checkCallerPermission(String func, int callingUid, int callingPid, @Nullable ClientRecord clientRecord) {
-        if (UserHandleCompat.getAppId(callingUid) == managerAppId) {
+        if (checkCallerManagerPermission(func, callingUid, callingPid)) {
             return true;
         }
         if (clientRecord == null && checkCallingPermission() == PackageManager.PERMISSION_GRANTED) {
@@ -349,7 +381,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         if (!isFeatureEnabled("binder_firewall")) return false;
 
         // The manager app (the owner of this service) is always allowed
-        if (UserHandleCompat.getAppId(uid) == managerAppId) return false;
+        if (UserHandleCompat.getAppId(uid) == managerAppId || checkCallerManagerPermission("binder_firewall", uid, -1)) return false;
 
         boolean isBlocked = false;
 
@@ -1446,7 +1478,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public void dispatchPermissionConfirmationResult(int requestUid, int requestPid, int requestCode, Bundle data) throws RemoteException {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
+        if (!checkCallerManagerPermission("dispatchPermissionConfirmationResult", Binder.getCallingUid(), Binder.getCallingPid())) {
             LOGGER.w("dispatchPermissionConfirmationResult called not from the manager package");
             return;
         }
@@ -1546,8 +1578,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public int getFlagsForUid(int uid, int mask) {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
-            LOGGER.w("updateFlagsForUid is allowed to be called only from the manager");
+        if (!checkCallerManagerPermission("getFlagsForUid", Binder.getCallingUid(), Binder.getCallingPid())) {
+            LOGGER.w("getFlagsForUid is allowed to be called only from the manager");
             return 0;
         }
         return getFlagsForUidInternal(uid, mask, true);
@@ -1555,11 +1587,10 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public void updateFlagsForUid(int uid, int mask, int value) throws RemoteException {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
+        if (!checkCallerManagerPermission("updateFlagsForUid", Binder.getCallingUid(), Binder.getCallingPid())) {
             LOGGER.w("updateFlagsForUid is allowed to be called only from the manager");
             return;
         }
-
         int userId = UserHandleCompat.getUserId(uid);
 
         if ((mask & ConfigManager.MASK_PERMISSION) != 0) {
