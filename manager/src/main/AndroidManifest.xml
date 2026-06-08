@@ -148,6 +148,14 @@
             android:exported="false"
             android:label="@string/home_service_doctor_title" />
         <activity
+            android:name=".activitylog.ActivityLogActivity"
+            android:exported="false"
+            android:label="@string/settings_activity_log" />
+        <activity
+            android:name=".adb.AdbPairingTutorialActivity"
+            android:exported="false"
+            android:label="@string/home_wireless_adb_title" />
+        <activity
             android:name=".shell.ShellTutorialActivity"
             android:exported="false"
             android:label="@string/home_terminal_title" />
