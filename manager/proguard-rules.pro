@@ -19,6 +19,17 @@
 -keep class rikka.shizuku.BinderContainer { *; }
 -keep class moe.shizuku.api.BinderContainer { *; }
 
+# Keep all AIDL interfaces and generated Stub/Proxy classes to prevent interface descriptor mismatches and silent one-way transaction failures
+-keep class af.shizuku.server.** { *; }
+-keep interface af.shizuku.server.** { *; }
+-keep class com.rosan.app_process.** { *; }
+-keep interface com.rosan.app_process.** { *; }
+-keep class com.rosan.dhizuku.** { *; }
+-keep interface com.rosan.dhizuku.** { *; }
+
+-keep public interface * extends android.os.IInterface { *; }
+-keep public class * extends android.os.Binder { *; }
+
 # Missing class android.app.IProcessObserver$Stub
 # Missing class android.app.IUidObserver$Stub
 -keepclassmembers class rikka.hidden.compat.adapter.ProcessObserverAdapter {
