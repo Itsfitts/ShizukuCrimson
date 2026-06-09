@@ -1789,6 +1789,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 failedUserIds.add(userId);
             }
         }
+        
+        System.out.println("shizuku_server_ready");
+        
         if (!failedUserIds.isEmpty()) {
             // For unknown reason, sometimes this could happen
             // Kill Shizuku app and try again could work

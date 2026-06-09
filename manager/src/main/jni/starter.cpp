@@ -138,13 +138,10 @@ static void start_server(const char *path, const char *main_class, const char *p
             int fd = open("/dev/null", O_RDWR);
             if (fd != -1) {
                 dup2(fd, STDIN_FILENO);
-                dup2(fd, STDOUT_FILENO);
+                dup2(fds[1], STDOUT_FILENO);
                 dup2(fd, STDERR_FILENO);
                 if (fd > 2) close(fd);
             }
-            
-            char ready = 1;
-            write(fds[1], &ready, 1);
             close(fds[1]);
 
             run_server(path, main_class, process_name);
@@ -157,13 +154,28 @@ static void start_server(const char *path, const char *main_class, const char *p
             pfd.fd = fds[0];
             pfd.events = POLLIN;
             
-            int ret = poll(&pfd, 1, 5000); // 5 second timeout
-            if (ret > 0) {
-                read(fds[0], &ready, 1);
-            } else if (ret == 0) {
-                perrorf("warn: starter timeout, server might not have started correctly\n");
-            } else {
-                perrorf("warn: poll failed: %s\n", strerror(errno));
+            while (true) {
+                int ret = poll(&pfd, 1, 30000); // 30 second timeout
+                if (ret > 0) {
+                    char buf[1024];
+                    ssize_t n = read(fds[0], buf, sizeof(buf) - 1);
+                    if (n > 0) {
+                        buf[n] = '\0';
+                        if (strstr(buf, "shizuku_server_ready") != NULL) {
+                            ready = 1;
+                            break;
+                        }
+                    } else {
+                        // EOF
+                        break;
+                    }
+                } else if (ret == 0) {
+                    perrorf("warn: starter timeout, server might not have started correctly\n");
+                    break;
+                } else {
+                    perrorf("warn: poll failed: %s\n", strerror(errno));
+                    break;
+                }
             }
             
             close(fds[0]);
