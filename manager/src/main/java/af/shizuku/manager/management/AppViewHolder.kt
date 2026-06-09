@@ -2,6 +2,7 @@ package af.shizuku.manager.management
 
 import android.app.Activity
 import android.app.ActivityOptions
+import timber.log.Timber
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
