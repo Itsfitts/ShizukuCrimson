@@ -1533,11 +1533,15 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     continue;
                 }
 
-                int deviceId = 0;//Context.DEVICE_ID_DEFAULT
-                if (allowed) {
-                    PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
-                } else {
-                    PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                try {
+                    int deviceId = 0;//Context.DEVICE_ID_DEFAULT
+                    if (allowed) {
+                        PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
+                    } else {
+                        PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.w(e, "Failed to grant/revoke runtime permission for " + packageName);
                 }
                 break;
             }
@@ -1627,12 +1631,16 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     continue;
                 }
 
-                int deviceId = 0;//Context.DEVICE_ID_DEFAULT
-                if (allowed) {
-                    PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
-                } else {
-                    PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
-                    onPermissionRevoked(packageName);
+                try {
+                    int deviceId = 0;//Context.DEVICE_ID_DEFAULT
+                    if (allowed) {
+                        PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
+                    } else {
+                        PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                        onPermissionRevoked(packageName);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.w(e, "Failed to grant/revoke runtime permission for " + packageName);
                 }
                 break;
             }

@@ -213,7 +213,11 @@ class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callbacks 
                 11 -> { // Grant all
                     adapter.selectedPackages.toList().forEach { pkg ->
                         val pi = viewModel.packages.value?.data?.find { it.packageName == pkg }
-                        pi?.applicationInfo?.uid?.let { uid -> AuthorizationManager.grant(pkg, uid) }
+                        try {
+                            pi?.applicationInfo?.uid?.let { uid -> AuthorizationManager.grant(pkg, uid) }
+                        } catch (e: Throwable) {
+                            Timber.w(e, "Failed to grant permission for \$pkg")
+                        }
                     }
                     adapter.isSelectionMode = false
                     viewModel.load()
@@ -221,7 +225,11 @@ class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callbacks 
                 12 -> { // Revoke all
                     adapter.selectedPackages.toList().forEach { pkg ->
                         val pi = viewModel.packages.value?.data?.find { it.packageName == pkg }
-                        pi?.applicationInfo?.uid?.let { uid -> AuthorizationManager.revoke(pkg, uid) }
+                        try {
+                            pi?.applicationInfo?.uid?.let { uid -> AuthorizationManager.revoke(pkg, uid) }
+                        } catch (e: Throwable) {
+                            Timber.w(e, "Failed to revoke permission for \$pkg")
+                        }
                     }
                     adapter.isSelectionMode = false
                     viewModel.load()
@@ -350,6 +358,8 @@ class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callbacks 
                     adapter.notifyItemChanged(0) // update summary
                 } catch (e: SecurityException) {
                     Toast.makeText(this, R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT).show()
+                } catch (e: Throwable) {
+                    Timber.w(e, "Failed to toggle permission")
                 }
             }
             "hide_from_list" -> onHideApp(item.packageName)

@@ -153,6 +153,8 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                         if (runCatching { Shizuku.getUid() }.getOrDefault(-1) != 0) {
                             showAdbLimitedDialog(context)
                         }
+                    } catch (e: Throwable) {
+                        Timber.w(e, "Failed to toggle permission")
                     }
                 })
             }
@@ -214,6 +216,9 @@ class AppViewHolder(private val binding: AppListItemBinding) :
         } catch (e: SecurityException) {
             val uid = runCatching { Shizuku.getUid() }.getOrDefault(-1)
             if (uid != 0) showAdbLimitedDialog(context)
+            return
+        } catch (e: Throwable) {
+            Timber.w(e, "Failed to toggle permission")
             return
         }
         val pos = adapterPosition
