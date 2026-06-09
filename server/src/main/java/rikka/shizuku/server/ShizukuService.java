@@ -1914,29 +1914,42 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 return false;
             }
 
-            boolean isLegacy = true;
-            if (MANAGER_APPLICATION_ID.equals(packageName)) {
-                isLegacy = false;
-            } else {
-                try {
-                    PackageInfo pi = PackageManagerApis.getPackageInfoNoThrow(packageName, PackageManager.GET_PERMISSIONS, userId);
-                    if (pi != null && pi.requestedPermissions != null && ArraysKt.contains(pi.requestedPermissions, PERMISSION)) {
-                        isLegacy = false;
-                    }
-                } catch (Throwable tr) {
-                    LOGGER.e(tr, "failed to check permissions for %s", packageName);
-                }
-            }
-
-            Bundle extra = new Bundle();
-            if (!isLegacy) {
+            boolean success = false;
+            
+            try {
+                Bundle extra = new Bundle();
                 extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send af.shizuku binder to %s", packageName);
             }
-            extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
 
-            Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-            if (reply != null) {
+            try {
+                Bundle extra = new Bundle();
+                extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send rikka.shizuku binder to %s", packageName);
+            }
+
+            try {
+                Bundle extra = new Bundle();
+                extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send moe.shizuku binder to %s", packageName);
+            }
+
+            if (success) {
                 LOGGER.i("send binder to user app %s in user %d", packageName, userId);
                 return true;
             } else {
