@@ -241,8 +241,30 @@ public class ShizukuProvider extends ContentProvider {
         if (binder == null || !binder.pingBinder())
             return false;
 
-        BinderContainer container = new BinderContainer(binder);
-        reply.putParcelable(EXTRA_BINDER, container);
+        String callingPackage = getCallingPackage();
+        boolean isLegacy = true;
+        if (callingPackage == null || callingPackage.equals(getContext().getPackageName())) {
+            isLegacy = false;
+        } else {
+            try {
+                android.content.pm.PackageInfo pi = getContext().getPackageManager().getPackageInfo(callingPackage, android.content.pm.PackageManager.GET_PERMISSIONS);
+                if (pi != null && pi.requestedPermissions != null) {
+                    for (String reqPerm : pi.requestedPermissions) {
+                        if (PERMISSION.equals(reqPerm)) {
+                            isLegacy = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (Throwable tr) {
+                Log.e(TAG, "Failed to check calling package permissions", tr);
+            }
+        }
+
+        if (!isLegacy) {
+            BinderContainer container = new BinderContainer(binder);
+            reply.putParcelable(EXTRA_BINDER, container);
+        }
         reply.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
         reply.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
         return true;
