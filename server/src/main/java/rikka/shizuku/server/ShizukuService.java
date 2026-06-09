@@ -337,28 +337,37 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 LOGGER.w(e, "grant WRITE_SECURE_SETTINGS");
             }
         }
-        try {
-            // First try using the current descriptor (af.shizuku.server.IShizukuApplication)
-            application.bindApplication(reply);
-        } catch (Throwable e) {
-            // If it fails (likely due to interface descriptor mismatch on the client side),
-            // try using the legacy descriptor (moe.shizuku.server.IShizukuApplication)
-            LOGGER.w("attachApplication via current descriptor failed, trying legacy descriptor for " + requestPackageName);
+        String descriptor = "af.shizuku.server.IShizukuApplication";
+        if (clientRecord != null) {
+            descriptor = clientRecord.descriptor;
+        } else {
             try {
+                String remoteDesc = application.asBinder().getInterfaceDescriptor();
+                if (remoteDesc != null && !remoteDesc.isEmpty()) {
+                    descriptor = remoteDesc;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        try {
+            if ("af.shizuku.server.IShizukuApplication".equals(descriptor)) {
+                application.bindApplication(reply);
+            } else {
+                LOGGER.i("Using legacy/custom interface descriptor: " + descriptor + " for " + requestPackageName);
                 Parcel data = Parcel.obtain();
                 try {
-                    data.writeInterfaceToken("moe.shizuku.server.IShizukuApplication");
+                    data.writeInterfaceToken(descriptor);
                     // 1 = bindApplication(Bundle)
                     data.writeInt(1);
                     reply.writeToParcel(data, 0);
                     application.asBinder().transact(1, data, null, IBinder.FLAG_ONEWAY);
-                    LOGGER.i("Successfully sent bindApplication via legacy descriptor to " + requestPackageName);
                 } finally {
                     data.recycle();
                 }
-            } catch (Throwable e2) {
-                LOGGER.e(e2, "attachApplication legacy also failed for " + requestPackageName);
             }
+        } catch (Throwable e) {
+            LOGGER.e(e, "attachApplication failed for " + requestPackageName);
         }
     }
 
