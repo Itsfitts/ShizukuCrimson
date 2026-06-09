@@ -240,11 +240,7 @@ public class ShizukuSettings {
     }
 
     public static String getAuthToken() {
-        String authToken = getPreferences().getString("auth_token", null);
-        if (authToken == null || authToken.isEmpty()) {
-            authToken = generateAuthToken();
-        }
-        return authToken;
+        return getPreferences().getString("auth_token", null);
     }
 
     public static String generateAuthToken() {

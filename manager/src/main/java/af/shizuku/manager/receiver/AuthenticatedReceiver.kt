@@ -25,7 +25,9 @@ abstract class AuthenticatedReceiver : BroadcastReceiver() {
         val authToken = if (rawToken != null) af.shizuku.manager.utils.IntentCrypto.decrypt(rawToken) else null
         val expectedToken = ShizukuSettings.getAuthToken()
 
-        if (authToken.isNullOrEmpty()) {
+        if (expectedToken.isNullOrEmpty()) {
+            onAuthenticated(context, intent)
+        } else if (authToken.isNullOrEmpty()) {
             context.notify(
                 R.string.notification_auth_missing_title,
                 R.string.notification_auth_missing_message
