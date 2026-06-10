@@ -502,7 +502,8 @@ public abstract class Service<
                         reply.writeNoException();
                         reply.writeInt(resultRationale ? 1 : 0);
                         return true;
-                    case 17: // legacy attachApplication (v13+)
+                    case 17:
+                    case 18: // legacy attachApplication (v13+)
                         IBinder binder17 = data.readStrongBinder();
                         Bundle args17 = data.readInt() != 0 ? Bundle.CREATOR.createFromParcel(data) : null;
                         attachApplication(IShizukuApplication.Stub.asInterface(binder17), args17);
@@ -510,12 +511,12 @@ public abstract class Service<
                         return true;
                 }
             } else {
-                // Shizuku+ specific handling for code 14 and 17
+                // Shizuku+ specific handling for code 14, 17, and 18
                 if (code == 14 /* requestPermission */) {
                     requestPermission(data.readInt());
                     reply.writeNoException();
                     return true;
-                } else if (code == 17 /* attachApplication v13+ */) {
+                } else if (code == 17 || code == 18 /* attachApplication v13+ */) {
                     IBinder binder = data.readStrongBinder();
                     Bundle args = data.readInt() != 0 ? Bundle.CREATOR.createFromParcel(data) : null;
                     attachApplication(IShizukuApplication.Stub.asInterface(binder), args);
