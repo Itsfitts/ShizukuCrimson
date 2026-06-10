@@ -388,9 +388,9 @@ public abstract class Service<
     // Safe in the privileged server process where hidden API restrictions are not enforced.
     private static String readInterfaceTokenCompat(Parcel parcel) {
         try {
-            Method m = Parcel.class.getDeclaredMethod("readInterfaceToken");
-            m.setAccessible(true);
-            return (String) m.invoke(parcel);
+            parcel.readInt(); // Consume strict mode policy
+            String descriptor = parcel.readString();
+            return descriptor != null ? descriptor : "";
         } catch (Exception ignored) {
             return "";
         }
@@ -514,9 +514,15 @@ public abstract class Service<
             }
         }
 
-        if (rishService.onTransact(code, data, reply, flags)) {
-            return true;
+        data.setDataPosition(0);
+        try {
+            if (rishService.onTransact(code, data, reply, flags)) {
+                return true;
+            }
+        } catch (SecurityException ignored) {
+            // enforceInterface throws this if the descriptor doesn't match IRishService
         }
+        data.setDataPosition(0);
         return super.onTransact(code, data, reply, flags);
     }
 }
