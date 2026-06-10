@@ -17,6 +17,10 @@ on:
         required: false
         default: false
 
+# Opt into Node.js 24 for all actions before the June 16 forced migration deadline
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest

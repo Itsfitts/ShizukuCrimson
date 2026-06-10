@@ -239,7 +239,7 @@ public abstract class AppProcess implements Closeable {
                     mChildProcess.remove(token);
                 }, 0);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e("AppProcess", "linkToDeath failed", e);
             }
             return binder;
         }

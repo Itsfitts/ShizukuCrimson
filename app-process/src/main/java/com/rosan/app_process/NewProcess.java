@@ -43,7 +43,6 @@ public class NewProcess {
         try {
             innerMain(args);
         } catch (Throwable e) {
-            e.printStackTrace();
             Log.e(TAG, "main", e);
             throw e;
         }

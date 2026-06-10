@@ -2,6 +2,7 @@ package af.shizuku.manager.settings
 
 import android.content.Context
 import android.content.res.XmlResourceParser
+import android.util.Log
 import af.shizuku.manager.R
 import org.xmlpull.v1.XmlPullParser
 
@@ -69,7 +70,7 @@ object SettingsSearchEngine {
                     eventType = parser.next()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("SettingsSearchEngine", "Failed to index settings XML", e)
             }
         }
         indexedItems = items

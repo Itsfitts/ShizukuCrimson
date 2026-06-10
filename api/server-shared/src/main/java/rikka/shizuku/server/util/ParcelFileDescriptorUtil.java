@@ -59,12 +59,12 @@ public class ParcelFileDescriptorUtil {
                 try {
                     mIn.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("TransferThread", "failed to close input", e);
                 }
                 try {
                     mOut.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("TransferThread", "failed to close output", e);
                 }
             }
         }

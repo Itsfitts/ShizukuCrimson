@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.22.1)
 
+# Suppress unused-variable warnings from the Android Gradle Plugin
+set(ignoreMe "${ANDROID_LD}")
+
 project("shizuku")
 
 set(CMAKE_CXX_STANDARD 17)

@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -28,7 +29,7 @@ class FakeAdbPairingActivity : Activity() {
             try {
                 latch.await()
             } catch (e: InterruptedException) {
-                e.printStackTrace()
+                Log.e("FakeAdbPairingActivity", "latch await interrupted", e)
             }
             return currentResult.get()
         }
