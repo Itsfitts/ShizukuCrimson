@@ -384,16 +384,27 @@ public abstract class Service<
         return true;
     }
 
-    // readInterfaceToken() is a hidden API not in public SDK stubs — access via reflection.
-    // Safe in the privileged server process where hidden API restrictions are not enforced.
-    private static String readInterfaceTokenCompat(Parcel parcel) {
+    private static String enforceAndReadDescriptor(Parcel data) {
+        int pos = data.dataPosition();
         try {
-            parcel.readInt(); // Consume strict mode policy
-            String descriptor = parcel.readString();
-            return descriptor != null ? descriptor : "";
-        } catch (Exception ignored) {
-            return "";
-        }
+            data.enforceInterface("moe.shizuku.server.IShizukuService");
+            return "moe.shizuku.server.IShizukuService";
+        } catch (SecurityException ignored) {}
+        
+        data.setDataPosition(pos);
+        try {
+            data.enforceInterface("rikka.shizuku.IShizukuService");
+            return "rikka.shizuku.IShizukuService";
+        } catch (SecurityException ignored) {}
+        
+        data.setDataPosition(pos);
+        try {
+            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            return ShizukuApiConstants.BINDER_DESCRIPTOR;
+        } catch (SecurityException ignored) {}
+        
+        data.setDataPosition(pos);
+        return "";
     }
 
     @CallSuper
@@ -401,7 +412,7 @@ public abstract class Service<
     public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
         // Support legacy interface tokens from existing Shizuku apps
         data.setDataPosition(0);
-        String descriptor = readInterfaceTokenCompat(data);
+        String descriptor = enforceAndReadDescriptor(data);
         boolean isLegacy = "moe.shizuku.server.IShizukuService".equals(descriptor) || "rikka.shizuku.IShizukuService".equals(descriptor);
         boolean isNew = ShizukuApiConstants.BINDER_DESCRIPTOR.equals(descriptor);
 
