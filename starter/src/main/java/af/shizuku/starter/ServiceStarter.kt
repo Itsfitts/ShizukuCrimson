@@ -14,7 +14,7 @@ import java.util.*
 object ServiceStarter {
 
     private const val TAG = "ShizukuServiceStarter"
-    private const val EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER"
+    private const val EXTRA_BINDER = "rikka.shizuku.intent.extra.BINDER"
 
     val DEBUG_ARGS: String by lazy {
         val sdk = Build.VERSION.SDK_INT
@@ -88,7 +88,7 @@ object ServiceStarter {
     }
 
     private suspend fun sendBinder(binder: IBinder, token: String, retry: Boolean = true): Boolean = withContext(Dispatchers.IO) {
-        val packageName = "af.shizuku.plus.api"
+        val packageName = "moe.shizuku.privileged.api"
         val name = "$packageName.shizuku"
         val userId = 0
         var provider: IContentProvider? = null

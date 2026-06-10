@@ -214,7 +214,8 @@
             android:theme="@style/GrantPermissions">
             <intent-filter android:priority="1000">
                 <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER" />
-
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_BINDER" />
+                <action android:name="af.shizuku.manager.action.REQUEST_BINDER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -296,6 +297,8 @@
             tools:ignore="ExportedReceiver">
             <intent-filter android:priority="1000">
                 <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER" />
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_BINDER" />
+                <action android:name="af.shizuku.manager.action.REQUEST_BINDER" />
             </intent-filter>
         </receiver>
 

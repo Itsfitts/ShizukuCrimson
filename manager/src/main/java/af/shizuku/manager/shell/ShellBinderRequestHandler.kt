@@ -12,8 +12,11 @@ import af.shizuku.manager.ShizukuSettings
 object ShellBinderRequestHandler {
 
     fun handleRequest(context: Context, intent: Intent, requireAuth: Boolean = false): Boolean {
-        if (intent.action != "rikka.shizuku.intent.action.REQUEST_BINDER") {
-            return false
+        val interfaceToken = when (intent.action) {
+            "rikka.shizuku.intent.action.REQUEST_BINDER" -> "rikka.shizuku.IShizukuService"
+            "moe.shizuku.privileged.api.intent.action.REQUEST_BINDER" -> "moe.shizuku.server.IShizukuService"
+            "af.shizuku.manager.action.REQUEST_BINDER" -> "af.shizuku.server.IShizukuService"
+            else -> return false
         }
 
         if (requireAuth) {
@@ -35,7 +38,7 @@ object ShellBinderRequestHandler {
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
         try {
-            data.writeInterfaceToken("rikka.shizuku.IShizukuService")
+            data.writeInterfaceToken(interfaceToken)
             data.writeStrongBinder(shizukuBinder)
             binder.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, IBinder.FLAG_ONEWAY)
             return true
