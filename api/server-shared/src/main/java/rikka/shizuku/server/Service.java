@@ -315,7 +315,13 @@ public abstract class Service<
             return true;
         }
 
-        return clientManager.requireClient(callingUid, callingPid).allowed;
+        ClientRecord clientRecord = clientManager.findClient(callingUid, callingPid);
+        if (clientRecord != null) {
+            return clientRecord.allowed;
+        }
+
+        ConfigPackageEntry entry = configManager.find(callingUid);
+        return entry != null && entry.isAllowed();
     }
 
     @Override
@@ -355,8 +361,6 @@ public abstract class Service<
         if (callingUid == OsUtils.getUid() || callingPid == OsUtils.getPid()) {
             return true;
         }
-
-        clientManager.requireClient(callingUid, callingPid);
 
         ConfigPackageEntry entry = configManager.find(callingUid);
         return entry != null && entry.isDenied();
