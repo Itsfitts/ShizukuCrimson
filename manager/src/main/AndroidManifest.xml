@@ -65,6 +65,7 @@
 
     <application
         android:name=".ShizukuApplication"
+        android:extractNativeLibs="true"
         android:allowBackup="true"
         android:autoRevokePermissions="allowed"
         android:banner="@drawable/ic_launcher"
