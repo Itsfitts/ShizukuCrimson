@@ -191,8 +191,13 @@ public class ShizukuConfigManager extends ConfigManager {
                 List<String> packages = new ArrayList<>();
                 packages.add(pi.packageName);
 
-                updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, allowed ? ConfigManager.FLAG_ALLOWED : 0);
-                changed = true;
+                if (allowed) {
+                    updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, ConfigManager.FLAG_ALLOWED);
+                    changed = true;
+                } else if (rikka.shizuku.server.util.OsUtils.getUid() == 0) {
+                    updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, 0);
+                    changed = true;
+                }
         }
 
         if (changed) {
