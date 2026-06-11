@@ -145,13 +145,33 @@ public abstract class Service<
         int callingPid = Binder.getCallingPid();
         ClientRecord clientRecord = clientManager.findClient(callingUid, callingPid);
 
-        if (clientRecord != null && clientRecord.apiVersion >= 13) {
+        String descriptor = null;
+        if (targetBinder != null) {
+            try {
+                descriptor = targetBinder.getInterfaceDescriptor();
+            } catch (Throwable ignored) {}
+        }
+
+        boolean hasFlags = false;
+        if (descriptor != null) {
+            int pos = data.dataPosition();
+            data.setDataPosition(pos + 4);
+            try {
+                String testDescriptor = data.readString();
+                if (descriptor.equals(testDescriptor)) {
+                    hasFlags = true;
+                }
+            } catch (Throwable ignored) {}
+            data.setDataPosition(pos);
+        } else {
+            hasFlags = (clientRecord != null && clientRecord.apiVersion >= 13);
+        }
+
+        if (hasFlags) {
             targetFlags = data.readInt();
         } else {
             targetFlags = flags;
         }
-
-        String descriptor = targetBinder.getInterfaceDescriptor();
         
         // AIDL Logging (Issue #199)
         if (checkPlusFeatureEnabled("binder_logging")) {

@@ -457,7 +457,6 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             if ("android.content.pm.IPackageManager".equals(descriptor)) {
                 // Save position to restore if we don't handle it
                 int pos = data.dataPosition();
-                data.setDataPosition(0);
                 
                 String packageName = null;
                 try {
