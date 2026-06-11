@@ -403,6 +403,12 @@ class ShizukuApplication : Application(), Configuration.Provider {
             Sentry.captureException(e)
         }
 
+        try {
+            af.shizuku.manager.utils.LogcatLogger.init(this)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to initialize LogcatLogger")
+        }
+
         Timber.d("Shizuku+ ${BuildConfig.VERSION_NAME} initialization complete")
         Sentry.addBreadcrumb(Breadcrumb("App initialization complete"))
     }

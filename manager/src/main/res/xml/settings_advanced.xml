@@ -37,6 +37,20 @@
             android:title="@string/settings_update_app_database"
             android:summary="@string/settings_update_app_database_summary"
             android:icon="@drawable/ic_autorenew" />
+
+        <SwitchPreferenceCompat
+            android:key="enable_logcat_logger"
+            android:title="Enable Logcat Logger"
+            android:summary="Record local and Shizuku server logcat output to a file"
+            android:icon="@drawable/ic_article_24"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="export_logcat"
+            android:title="Share Logcat File"
+            android:summary="Export the captured logcat.txt file"
+            android:icon="@drawable/ic_outline_open_in_new_24"
+            android:dependency="enable_logcat_logger" />
     </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
