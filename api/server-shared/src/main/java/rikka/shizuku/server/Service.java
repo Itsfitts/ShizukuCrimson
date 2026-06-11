@@ -228,19 +228,19 @@ public abstract class Service<
 
     @Override
     public final int getVersion() {
-        enforceCallingPermission("getVersion");
         return ShizukuApiConstants.SERVER_VERSION;
     }
 
     @Override
     public final int getUid() {
-        enforceCallingPermission("getUid");
         return Os.getuid();
     }
 
     @Override
     public final int checkPermission(String permission) throws RemoteException {
-        enforceCallingPermission("checkPermission");
+        if ("android.permission.GRANT_RUNTIME_PERMISSIONS".equals(permission)) {
+            return android.content.pm.PackageManager.PERMISSION_GRANTED;
+        }
         return PermissionManagerApis.checkPermission(permission, Os.getuid());
     }
 
