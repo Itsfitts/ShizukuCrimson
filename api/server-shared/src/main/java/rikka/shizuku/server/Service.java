@@ -22,6 +22,16 @@ import af.shizuku.server.IRemoteProcess;
 import af.shizuku.server.IShizukuApplication;
 import af.shizuku.server.IShizukuService;
 import af.shizuku.server.IShizukuServiceConnection;
+import af.shizuku.server.IVirtualMachineManager;
+import af.shizuku.server.IStorageProxy;
+import af.shizuku.server.IAICorePlus;
+import af.shizuku.server.IAIAutomationBridge;
+import af.shizuku.server.IWindowManagerPlus;
+import af.shizuku.server.IContinuityBridge;
+import af.shizuku.server.IOverlayManagerPlus;
+import af.shizuku.server.INetworkGovernorPlus;
+import af.shizuku.server.IActivityManagerPlus;
+import java.util.List;
 import rikka.hidden.compat.PermissionManagerApis;
 import rikka.rish.RishConfig;
 import rikka.rish.RishService;
@@ -533,6 +543,100 @@ public abstract class Service<
                         attachApplication(IShizukuApplication.Stub.asInterface(binder17), args17);
                         reply.writeNoException();
                         return true;
+                    case 107: {
+                        reply.writeNoException();
+                        IVirtualMachineManager vmm = getVirtualMachineManager();
+                        reply.writeStrongBinder(vmm != null ? vmm.asBinder() : null);
+                        return true;
+                    }
+                    case 108: {
+                        reply.writeNoException();
+                        IStorageProxy sp = getStorageProxy();
+                        reply.writeStrongBinder(sp != null ? sp.asBinder() : null);
+                        return true;
+                    }
+                    case 109: {
+                        reply.writeNoException();
+                        IAICorePlus aic = getAICorePlus();
+                        reply.writeStrongBinder(aic != null ? aic.asBinder() : null);
+                        return true;
+                    }
+                    case 110: {
+                        reply.writeNoException();
+                        IWindowManagerPlus wmp = getWindowManagerPlus();
+                        reply.writeStrongBinder(wmp != null ? wmp.asBinder() : null);
+                        return true;
+                    }
+                    case 111: {
+                        reply.writeNoException();
+                        IContinuityBridge cb = getContinuityBridge();
+                        reply.writeStrongBinder(cb != null ? cb.asBinder() : null);
+                        return true;
+                    }
+                    case 112: {
+                        String key = data.readString();
+                        boolean enabled = data.readInt() != 0;
+                        updatePlusFeatureEnabled(key, enabled);
+                        reply.writeNoException();
+                        return true;
+                    }
+                    case 113: {
+                        reply.writeNoException();
+                        IOverlayManagerPlus omp = getOverlayManagerPlus();
+                        reply.writeStrongBinder(omp != null ? omp.asBinder() : null);
+                        return true;
+                    }
+                    case 114: {
+                        reply.writeNoException();
+                        INetworkGovernorPlus ngp = getNetworkGovernorPlus();
+                        reply.writeStrongBinder(ngp != null ? ngp.asBinder() : null);
+                        return true;
+                    }
+                    case 115: {
+                        reply.writeNoException();
+                        IActivityManagerPlus amp = getActivityManagerPlus();
+                        reply.writeStrongBinder(amp != null ? amp.asBinder() : null);
+                        return true;
+                    }
+                    case 116: {
+                        String key = data.readString();
+                        String value = data.readString();
+                        setPlusSetting(key, value);
+                        reply.writeNoException();
+                        return true;
+                    }
+                    case 117: {
+                        String pkg = data.readString();
+                        elevateApp(pkg);
+                        reply.writeNoException();
+                        return true;
+                    }
+                    case 118: {
+                        List<String> logs = getRecentLogs();
+                        reply.writeNoException();
+                        reply.writeStringList(logs);
+                        return true;
+                    }
+                    case 119: {
+                        String key = data.readString();
+                        String val = getPlusSetting(key);
+                        reply.writeNoException();
+                        reply.writeString(val);
+                        return true;
+                    }
+                    case 120: {
+                        String key = data.readString();
+                        boolean enabled = isPlusFeatureEnabled(key);
+                        reply.writeNoException();
+                        reply.writeInt(enabled ? 1 : 0);
+                        return true;
+                    }
+                    case 121: {
+                        IAIAutomationBridge bridge = IAIAutomationBridge.Stub.asInterface(data.readStrongBinder());
+                        registerAIAutomationBridge(bridge);
+                        reply.writeNoException();
+                        return true;
+                    }
                 }
             } else {
                 // Shizuku+ specific handling for code 14, 17, and 18
