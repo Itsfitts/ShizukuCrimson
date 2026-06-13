@@ -305,7 +305,9 @@ object ActivityLogManager {
 
                 // Attempt Programmatic SQLite .recover
                 try {
-                    val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 \${corruptedBackup.absolutePath} '.recover' | sqlite3 \${dbFile.absolutePath}"))
+                    val backupPathEscaped = "'${corruptedBackup.absolutePath.replace("'", "'\\''")}'"
+                    val dbPathEscaped = "'${dbFile.absolutePath.replace("'", "'\\''")}'"
+                    val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 $backupPathEscaped '.recover' | sqlite3 $dbPathEscaped"))
                     val exitCode = process.waitFor()
                     if (exitCode == 0 && dbFile.exists() && dbFile.length() > 0) {
                         recoverySuccessful = true
@@ -363,13 +365,15 @@ object ActivityLogManager {
         
         return withContext(Dispatchers.IO) {
             try {
+                val backupPathEscaped = "'${backupFile.absolutePath.replace("'", "'\\''")}'"
+                val newDbPathEscaped = "'${newDbFile.absolutePath.replace("'", "'\\''")}'"
                 when (method) {
                     "recover" -> {
-                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 ${backupFile.absolutePath} '.recover' | sqlite3 ${newDbFile.absolutePath}"))
+                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 $backupPathEscaped '.recover' | sqlite3 $newDbPathEscaped"))
                         if (process.waitFor() == 0) "Recovery successful via SQLite .recover" else "SQLite .recover failed."
                     }
                     "dump" -> {
-                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 ${backupFile.absolutePath} '.dump' | sqlite3 ${newDbFile.absolutePath}"))
+                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 $backupPathEscaped '.dump' | sqlite3 $newDbPathEscaped"))
                         if (process.waitFor() == 0) "Recovery successful via SQLite .dump" else "SQLite .dump failed."
                     }
                     "raw_text_extraction" -> {
