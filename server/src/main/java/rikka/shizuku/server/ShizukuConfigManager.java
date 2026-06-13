@@ -143,9 +143,10 @@ public class ShizukuConfigManager extends ConfigManager {
             }
 
             boolean packagesChanged = true;
+            java.util.Set<String> packageSet = new java.util.HashSet<>(packages);
 
             for (String packageName : entry.packages) {
-                if (packages.contains(packageName)) {
+                if (packageSet.contains(packageName)) {
                     packagesChanged = false;
                     break;
                 }
