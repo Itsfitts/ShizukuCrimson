@@ -208,15 +208,19 @@ object ActivityLogManager {
         records.toList()
     }
     
+    /**
+     * Clears the in-memory records, resets the logs state flow,
+     * and clears the database to ensure all activity logs are removed.
+     */
     fun clear() {
         synchronized(records) {
             records.clear()
-            _logs.value = emptyList()
+            _logs.value = listOf()
         }
         
         scope.launch {
             try {
-                dao?.clear()
+                dao?.let { it.clear() }
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "Error clearing logs")
             }
