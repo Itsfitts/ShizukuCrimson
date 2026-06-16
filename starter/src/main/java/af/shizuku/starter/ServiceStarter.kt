@@ -88,7 +88,7 @@ object ServiceStarter {
     }
 
     private suspend fun sendBinder(binder: IBinder, token: String, retry: Boolean = true): Boolean = withContext(Dispatchers.IO) {
-        val packageName = "moe.shizuku.privileged.api"
+        val packageName = "af.shizuku.plus.api"
         val name = "$packageName.shizuku"
         val userId = 0
         var provider: IContentProvider? = null

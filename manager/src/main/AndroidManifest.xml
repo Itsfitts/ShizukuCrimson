@@ -351,7 +351,7 @@
 
         <provider
             android:name=".ShizukuManagerProvider"
-            android:authorities="${applicationId}.shizuku;moe.shizuku.privileged.api;moe.shizuku.privileged.api.shizuku"
+            android:authorities="${applicationId}.shizuku"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true"
