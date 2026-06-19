@@ -1,6 +1,7 @@
 package rikka.shizuku.server;
 
 import moe.shizuku.server.ClientManager;
+import moe.shizuku.server.ClientRecord;
 import static rikka.shizuku.server.ServerConstants.MANAGER_APPLICATION_ID;
 import java.util.List;
 import rikka.hidden.compat.PackageManagerApis;

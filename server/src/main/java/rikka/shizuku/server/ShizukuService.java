@@ -340,16 +340,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             }
         }
         String descriptor = "moe.shizuku.server.IShizukuApplication";
-        if (clientRecord != null) {
-            descriptor = clientRecord.descriptor;
-        } else {
-            try {
-                String remoteDesc = application.asBinder().getInterfaceDescriptor();
-                if (remoteDesc != null && !remoteDesc.isEmpty()) {
-                    descriptor = remoteDesc;
-                }
-            } catch (Throwable ignored) {
+        try {
+            String remoteDesc = application.asBinder().getInterfaceDescriptor();
+            if (remoteDesc != null && !remoteDesc.isEmpty()) {
+                descriptor = remoteDesc;
             }
+        } catch (Throwable ignored) {
         }
 
         try {

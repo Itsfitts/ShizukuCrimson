@@ -197,7 +197,7 @@ public class ShizukuConfigManager extends ConfigManager {
                 if (allowed) {
                     updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, ConfigManager.FLAG_ALLOWED);
                     changed = true;
-                } else if (rikka.shizuku.server.util.OsUtils.getUid() == 0) {
+                } else if (moe.shizuku.server.util.OsUtils.getUid() == 0) {
                     updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, 0);
                     changed = true;
                 }
