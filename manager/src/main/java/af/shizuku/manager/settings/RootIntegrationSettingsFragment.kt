@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.service.AdbProxyService
-import af.shizuku.server.IShizukuService
+import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
 
 /**
@@ -73,7 +73,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
             if (newValue is Boolean) {
                 preferenceManager.sharedPreferences?.edit()?.putBoolean("su_bridge_enabled", newValue)?.apply()
                 ShizukuSettings.syncAllPlusFeaturesToServer()
-                findPreference<Preference>("su_bridge_diagram")?.notifyChanged()
+                findPreference<Preference>("su_bridge_diagram")?.notifyChangedViaReflection()
             }
             true
         }
@@ -148,7 +148,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                     val chosen = presetValues[which]
                     if (chosen == "custom") {
                         // Let the default EditTextDialog handle custom text entry
-                        suPathPref.onClick()
+                        onPreferenceTreeClick(suPathPref)
                     } else {
                         suPathPref.text = chosen
                         Toast.makeText(context, "SU path preset applied: ${presets[which]}", Toast.LENGTH_SHORT).show()
@@ -156,6 +156,16 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                 }
                 .show()
             true // Intercept click to show presets dialog first
+        }
+    }
+
+    private fun Preference.notifyChangedViaReflection() {
+        try {
+            val method = Preference::class.java.getDeclaredMethod("notifyChanged")
+            method.isAccessible = true
+            method.invoke(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

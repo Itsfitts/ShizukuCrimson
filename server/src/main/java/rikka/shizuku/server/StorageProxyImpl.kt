@@ -3,7 +3,7 @@ package rikka.shizuku.server
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.os.RemoteException
-import af.shizuku.server.IStorageProxy
+import moe.shizuku.server.IStorageProxy
 import rikka.shizuku.server.util.InputValidationUtils
 import java.io.File
 

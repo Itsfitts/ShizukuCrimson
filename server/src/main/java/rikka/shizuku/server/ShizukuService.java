@@ -42,19 +42,19 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import kotlin.collections.ArraysKt;
-import af.shizuku.api.BinderContainer;
+import rikka.shizuku.BinderContainer;
 import rikka.core.util.BuildUtils;
 import af.shizuku.common.util.OsUtils;
-import af.shizuku.server.IRemoteProcess;
-import af.shizuku.server.IShizukuApplication;
-import af.shizuku.server.IVirtualMachineManager;
-import af.shizuku.server.IStorageProxy;
-import af.shizuku.server.IAICorePlus;
-import af.shizuku.server.IWindowManagerPlus;
-import af.shizuku.server.IContinuityBridge;
-import af.shizuku.server.IOverlayManagerPlus;
-import af.shizuku.server.INetworkGovernorPlus;
-import af.shizuku.server.IActivityManagerPlus;
+import moe.shizuku.server.IRemoteProcess;
+import moe.shizuku.server.IShizukuApplication;
+import moe.shizuku.server.IVirtualMachineManager;
+import moe.shizuku.server.IStorageProxy;
+import moe.shizuku.server.IAICorePlus;
+import moe.shizuku.server.IWindowManagerPlus;
+import moe.shizuku.server.IContinuityBridge;
+import moe.shizuku.server.IOverlayManagerPlus;
+import moe.shizuku.server.INetworkGovernorPlus;
+import moe.shizuku.server.IActivityManagerPlus;
 import rikka.hidden.compat.ActivityManagerApis;
 import rikka.hidden.compat.DeviceIdleControllerApis;
 import rikka.hidden.compat.PackageManagerApis;
@@ -64,11 +64,13 @@ import rikka.parcelablelist.ParcelableListSlice;
 import rikka.rish.RishConfig;
 import rikka.shizuku.ShizukuApiConstants;
 import rikka.shizuku.server.api.IContentProviderUtils;
-import rikka.shizuku.server.util.HandlerUtil;
-import rikka.shizuku.server.util.Logger;
+import moe.shizuku.server.util.HandlerUtil;
+import moe.shizuku.server.util.Logger;
 import af.shizuku.common.util.UserHandleCompat;
-import rikka.shizuku.server.ClientManager;
-import rikka.shizuku.server.ClientRecord;
+import moe.shizuku.server.Service;
+import moe.shizuku.server.ClientManager;
+import moe.shizuku.server.ConfigManager;
+import moe.shizuku.server.ClientRecord;
 
 public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuClientManager, ShizukuConfigManager> {
 
@@ -306,7 +308,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             }
         }
         try {
-            // First try using the current descriptor (af.shizuku.server.IShizukuApplication)
+            // First try using the current descriptor (moe.shizuku.server.IShizukuApplication)
             application.bindApplication(reply);
         } catch (Throwable e) {
             // If it fails (likely due to interface descriptor mismatch on the client side),
@@ -1864,9 +1866,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             }
 
             Bundle extra = new Bundle();
-            extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+            extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
             extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
+            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
 
             Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
             if (reply != null) {
@@ -2011,10 +2013,10 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         return checkPlusFeatureEnabled(key);
     }
 
-    private af.shizuku.server.IAIAutomationBridge aiAutomationBridge;
+    private moe.shizuku.server.IAIAutomationBridge aiAutomationBridge;
 
     @Override
-    public void registerAIAutomationBridge(af.shizuku.server.IAIAutomationBridge bridge) {
+    public void registerAIAutomationBridge(moe.shizuku.server.IAIAutomationBridge bridge) {
         enforceCallingPermission("registerAIAutomationBridge");
         this.aiAutomationBridge = bridge;
         if (aiCorePlus != null) {

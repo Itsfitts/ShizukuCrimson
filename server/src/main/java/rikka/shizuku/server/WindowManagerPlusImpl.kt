@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.ServiceManager
 import android.util.Log
-import af.shizuku.server.IWindowManagerPlus
+import moe.shizuku.server.IWindowManagerPlus
 
 /**
  * Implementation of WindowManagerPlus using Android's window management APIs.
@@ -337,7 +337,7 @@ class WindowManagerPlusImpl : IWindowManagerPlus.Stub() {
      * Uses WindowManagerService to iterate through all windows and extract
      * titles, packages, and bounds for intelligence parsing.
      */
-    override fun getVisibleWindows(): Bundle {
+    fun getVisibleWindows(): Bundle {
         val bundle = Bundle()
         val windowList = ArrayList<Bundle>()
         

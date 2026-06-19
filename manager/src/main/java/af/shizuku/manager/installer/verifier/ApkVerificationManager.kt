@@ -1,6 +1,9 @@
 package af.shizuku.manager.installer.verifier
 
 import android.content.SharedPreferences
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 import java.io.File
 
 data class VerificationResult(

@@ -1,9 +1,9 @@
 package rikka.shizuku.server;
 
-import af.shizuku.server.IRemoteProcess;
+import moe.shizuku.server.IRemoteProcess;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 
 public class MockRemoteProcess extends IRemoteProcess.Stub {
     private final int exitCode;
@@ -16,14 +16,33 @@ public class MockRemoteProcess extends IRemoteProcess.Stub {
         this.standardOutput = standardOutput;
     }
 
-    @Override
-    public InputStream getInputStream() throws RemoteException {
-        return new ByteArrayInputStream(standardOutput.getBytes());
+    private static ParcelFileDescriptor stringToPfd(String text) {
+        if (text == null) text = "";
+        try {
+            ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+            try (ParcelFileDescriptor.AutoCloseOutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])) {
+                outputStream.write(text.getBytes());
+                outputStream.flush();
+            }
+            return pipe[0];
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
-    public InputStream getErrorStream() throws RemoteException {
-        return new ByteArrayInputStream(errorOutput.getBytes());
+    public ParcelFileDescriptor getOutputStream() throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public ParcelFileDescriptor getInputStream() throws RemoteException {
+        return stringToPfd(standardOutput);
+    }
+
+    @Override
+    public ParcelFileDescriptor getErrorStream() throws RemoteException {
+        return stringToPfd(errorOutput);
     }
 
     @Override
@@ -39,5 +58,15 @@ public class MockRemoteProcess extends IRemoteProcess.Stub {
     @Override
     public void destroy() throws RemoteException {
         // No-op for mock process
+    }
+
+    @Override
+    public boolean alive() throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean waitForTimeout(long timeout, String unitName) throws RemoteException {
+        return true;
     }
 }

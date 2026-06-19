@@ -17,7 +17,7 @@ import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.security.BiometricLock
 import af.shizuku.manager.ShizukuSettings.Keys.*
 import rikka.shizuku.Shizuku
-import af.shizuku.server.IShizukuService
+import moe.shizuku.server.IShizukuService
 
 import android.view.Menu
 import android.view.MenuInflater
@@ -278,7 +278,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 else -> null
             }
             if (diagramKey != null) {
-                findPreference<Preference>(diagramKey)?.notifyChanged()
+                findPreference<Preference>(diagramKey)?.notifyChangedViaReflection()
             }
         }
 
@@ -291,7 +291,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         ShizukuSettings.syncAllPlusFeaturesToServer()
                         updatePlusFeatureDependency(prefKey, true)
                         notifyDiagramForKey(prefKey)
-                        findPreference<Preference>("plus_status_dashboard")?.notifyChanged()
+                        findPreference<Preference>("plus_status_dashboard")?.notifyChangedViaReflection()
                     }
                     false // Handle manually after dialog
                 } else {
@@ -299,7 +299,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     ShizukuSettings.syncAllPlusFeaturesToServer()
                     updatePlusFeatureDependency(prefKey, enabled)
                     notifyDiagramForKey(prefKey)
-                    findPreference<Preference>("plus_status_dashboard")?.notifyChanged()
+                    findPreference<Preference>("plus_status_dashboard")?.notifyChangedViaReflection()
                     true
                 }
             }
@@ -327,7 +327,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                         activity?.runOnUiThread {
                             findPreference<TwoStatePreference>("ai_core_plus_enabled")?.isChecked = true
                             notifyDiagramForKey("ai_core_plus_enabled")
-                            findPreference<Preference>("plus_status_dashboard")?.notifyChanged()
+                            findPreference<Preference>("plus_status_dashboard")?.notifyChangedViaReflection()
                         }
                     }, { _ -> /* Ignore or show toast */ })
                     return@setOnPreferenceChangeListener false
@@ -338,7 +338,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             ShizukuSettings.syncAllPlusFeaturesToServer()
             updatePlusFeatureDependency("ai_core_plus_enabled", enabled)
             notifyDiagramForKey("ai_core_plus_enabled")
-            findPreference<Preference>("plus_status_dashboard")?.notifyChanged()
+            findPreference<Preference>("plus_status_dashboard")?.notifyChangedViaReflection()
             true
         }
 
@@ -555,6 +555,16 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 // overlay_manager_plus_enabled depends on window_manager_plus_enabled
                 updatePreferenceDependency("overlay_manager_plus_enabled", newValue && ShizukuSettings.isCustomApiEnabled(), hideDisabled)
             }
+        }
+    }
+
+    private fun Preference.notifyChangedViaReflection() {
+        try {
+            val method = Preference::class.java.getDeclaredMethod("notifyChanged")
+            method.isAccessible = true
+            method.invoke(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

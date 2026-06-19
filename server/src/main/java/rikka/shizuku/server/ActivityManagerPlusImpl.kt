@@ -1,7 +1,7 @@
 package rikka.shizuku.server
 
 import android.os.Process
-import af.shizuku.server.IActivityManagerPlus
+import moe.shizuku.server.IActivityManagerPlus
 import rikka.hidden.compat.ActivityManagerApis
 import af.shizuku.common.util.UserHandleCompat
 

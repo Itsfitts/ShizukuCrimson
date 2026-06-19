@@ -6,7 +6,7 @@ import android.graphics.Path
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import timber.log.Timber
-import af.shizuku.server.IAIAutomationBridge
+import moe.shizuku.server.IAIAutomationBridge
 import rikka.shizuku.Shizuku
 
 /**
@@ -40,7 +40,7 @@ class AICorePlusService : AccessibilityService() {
         if (Shizuku.pingBinder()) {
             try {
                 val binder = Shizuku.getBinder()
-                val service = af.shizuku.server.IShizukuService.Stub.asInterface(binder)
+                val service = moe.shizuku.server.IShizukuService.Stub.asInterface(binder)
                 service.registerAIAutomationBridge(bridge)
                 Timber.d("Successfully registered AIAutomationBridge to server")
             } catch (e: Exception) {

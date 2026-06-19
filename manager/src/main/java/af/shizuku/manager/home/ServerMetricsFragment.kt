@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.FragmentServerMetricsBinding
+import moe.shizuku.server.IAICorePlus
 import rikka.shizuku.Shizuku
-import af.shizuku.server.IAICorePlus
 import timber.log.Timber
 
 class ServerMetricsFragment : Fragment() {
@@ -41,7 +41,7 @@ class ServerMetricsFragment : Fragment() {
         try {
             if (Shizuku.pingBinder()) {
                 val binder = Shizuku.getBinder()
-                val shizukuService = af.shizuku.server.IShizukuService.Stub.asInterface(binder)
+                val shizukuService = moe.shizuku.server.IShizukuService.Stub.asInterface(binder)
                 aiCore = shizukuService.aiCorePlus
             }
         } catch (e: Exception) {
@@ -62,7 +62,7 @@ class ServerMetricsFragment : Fragment() {
     private fun updateStats() {
         val ai = aiCore ?: return
         try {
-            val stats = ai.serverStats
+            val stats = ai.getServerStats()
             val uptimeMs = stats.getLong("uptime_ms")
             binding.textUptime.text = formatUptime(uptimeMs)
             val clientCount = stats.getInt("client_count")

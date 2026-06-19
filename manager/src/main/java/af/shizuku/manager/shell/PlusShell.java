@@ -10,10 +10,10 @@ import android.util.Log;
 import java.util.Arrays;
 import java.util.List;
 
-import af.shizuku.server.IAICorePlus;
-import af.shizuku.server.IStorageProxy;
-import af.shizuku.server.IVirtualMachineManager;
-import af.shizuku.server.IShizukuService;
+import moe.shizuku.server.IAICorePlus;
+import moe.shizuku.server.IStorageProxy;
+import moe.shizuku.server.IVirtualMachineManager;
+import moe.shizuku.server.IShizukuService;
 import rikka.rish.RishConfig;
 import rikka.shizuku.Shizuku;
 import rikka.shizuku.ShizukuApiConstants;
@@ -177,7 +177,7 @@ public class PlusShell {
         }
 
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
-        af.shizuku.server.IActivityManagerPlus am = service.getActivityManagerPlus();
+        moe.shizuku.server.IActivityManagerPlus am = service.getActivityManagerPlus();
         if (am == null) {
             LOGGER.e("Error: Activity Manager Plus feature is disabled in Shizuku+ settings.");
             return;
@@ -231,7 +231,7 @@ public class PlusShell {
         }
 
         IShizukuService service = IShizukuService.Stub.asInterface(binder);
-        af.shizuku.server.IWindowManagerPlus wm = service.getWindowManagerPlus();
+        moe.shizuku.server.IWindowManagerPlus wm = service.getWindowManagerPlus();
         if (wm == null) {
             LOGGER.e("Error: Window Manager Plus feature is disabled.");
             return;

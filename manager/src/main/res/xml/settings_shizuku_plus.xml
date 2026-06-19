@@ -249,7 +249,7 @@
 
         <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="ai_core_plus_enabled"
-            android:title="AI Bridge & NPU (Experimental)"
+            android:title="AI Bridge &amp; NPU (Experimental)"
             android:summary="@string/settings_ai_core_plus_summary"
             android:icon="@drawable/ic_integration_instructions_24"
             android:defaultValue="false"
@@ -264,7 +264,7 @@
             android:key="software_keystore_fallback_enabled"
             android:title="Software KeyStore Fallback"
             android:summary="[RISKY] Allows caching the ADB RSA Private Key encrypted with a software-based static AES key if your device's hardware KeyStore fails (e.g., Samsung Knox). Reduces pairing prompts but decreases security."
-            android:icon="@drawable/ic_security_24"
+            android:icon="@drawable/ic_shield_24"
             android:defaultValue="false"
             app:badgeType="experimental" />
 

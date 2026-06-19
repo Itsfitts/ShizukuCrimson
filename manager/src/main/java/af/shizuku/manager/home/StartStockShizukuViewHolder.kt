@@ -46,6 +46,6 @@ class StartStockShizukuViewHolder(
         start.text = "Start via original Shizuku"
         binding.title.text = "Setup via Original Shizuku"
         binding.text1.text = "The original Shizuku is currently running. You can use its root privileges to automatically start Shizuku+ and stop the original service."
-        binding.icon.setImageResource(R.drawable.ic_android_24)
+        binding.icon.setImageResource(R.drawable.ic_adb_24)
     }
 }

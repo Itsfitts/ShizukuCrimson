@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.ServiceManager
 import android.util.Log
-import af.shizuku.server.IVirtualMachineManager
+import moe.shizuku.server.IVirtualMachineManager
 import java.util.concurrent.ConcurrentHashMap
 
 /**

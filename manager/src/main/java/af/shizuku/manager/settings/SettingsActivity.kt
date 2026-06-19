@@ -66,8 +66,8 @@ class SettingsActivity : AppBarFragmentActivity(), PreferenceFragmentCompat.OnPr
         noResultsText = TextView(this).apply {
             text = "No settings found"
             textAlignment = View.TEXT_ALIGNMENT_CENTER
-            textAppearance = com.google.android.material.R.style.TextAppearance_Material3_TitleMedium
-            setTextColor(getColor(R.color.system_accent1_400))
+            androidx.core.widget.TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_TitleMedium)
+            setTextColor(context.getColor(R.color.system_accent1_400))
             visibility = View.GONE
             val padding = (32 * resources.displayMetrics.density).toInt()
             setPadding(padding, padding, padding, padding)

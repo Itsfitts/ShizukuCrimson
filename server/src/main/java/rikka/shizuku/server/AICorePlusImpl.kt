@@ -6,7 +6,9 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import af.shizuku.server.IAICorePlus
+import moe.shizuku.server.IAICorePlus
+import moe.shizuku.server.Service
+import moe.shizuku.server.ClientManager
 
 /**
  * Implementation of AICorePlus using Android's SurfaceControl and AI framework APIs.
@@ -19,9 +21,9 @@ class AICorePlusImpl(
         private const val TAG = "AICorePlusImpl"
     }
 
-    private var automationBridge: af.shizuku.server.IAIAutomationBridge? = null
+    private var automationBridge: moe.shizuku.server.IAIAutomationBridge? = null
 
-    fun setAutomationBridge(bridge: af.shizuku.server.IAIAutomationBridge?) {
+    fun setAutomationBridge(bridge: moe.shizuku.server.IAIAutomationBridge?) {
         this.automationBridge = bridge
     }
 
@@ -59,18 +61,16 @@ class AICorePlusImpl(
         }
     }
 
-    override fun scheduleNPULoad(taskData: Bundle?): Bundle? {
-        if (!service.isPlusFeatureEnabled("ai_core_master") || !service.isPlusFeatureEnabled("npu_acceleration")) return null
-        if (taskData == null) return null
+    override fun scheduleNPULoad(taskData: Bundle?): Boolean {
+        if (!service.isPlusFeatureEnabled("ai_core_master") || !service.isPlusFeatureEnabled("npu_acceleration")) return false
+        if (taskData == null) return false
         
         try {
             // android.provider.Settings.System.putInt(service.contentResolver, "processing_speed", 2)
-            val response = Bundle()
-            response.putBoolean("success", true)
-            return response
+            return true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to schedule NPU task", e)
-            return null
+            return false
         }
     }
 
@@ -164,9 +164,9 @@ class AICorePlusImpl(
         }
     }
 
-    override fun getServerStats(): Bundle? {
+    override fun getServerStats(): Bundle {
         val bundle = Bundle()
-        bundle.putInt("client_count", clientManager.clientCount)
+        bundle.putInt("client_count", clientManager.clientRecords.size)
         bundle.putLong("mem_total", Runtime.getRuntime().totalMemory())
         return bundle
     }

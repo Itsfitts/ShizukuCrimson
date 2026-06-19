@@ -1,6 +1,8 @@
 package rikka.shizuku.server;
 
 import androidx.annotation.NonNull;
+import moe.shizuku.server.ConfigPackageEntry;
+import moe.shizuku.server.ConfigManager;
 
 import com.google.gson.annotations.SerializedName;
 

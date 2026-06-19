@@ -4,7 +4,7 @@ import android.os.IBinder
 import android.os.Process
 import android.os.ServiceManager
 import android.util.Log
-import af.shizuku.server.IOverlayManagerPlus
+import moe.shizuku.server.IOverlayManagerPlus
 import af.shizuku.common.util.UserHandleCompat
 
 class OverlayManagerPlusImpl : IOverlayManagerPlus.Stub() {
@@ -118,7 +118,7 @@ class OverlayManagerPlusImpl : IOverlayManagerPlus.Stub() {
         }
     }
 
-    override fun prepareShadowMount(callingPackage: String?, partition: String?): Boolean {
+    fun prepareShadowMount(callingPackage: String?, partition: String?): Boolean {
         if (callingPackage == null || partition == null) return false
         Log.i(TAG, "Ghost Bridge: Preparing shadow mount for partition $partition requested by $callingPackage")
         // Mock success for Ghost Bridge emulation. Actual overlay logic requires root/magisk module to mount OverlayFS

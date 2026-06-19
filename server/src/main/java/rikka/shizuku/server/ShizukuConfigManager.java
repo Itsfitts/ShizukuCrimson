@@ -2,6 +2,8 @@ package rikka.shizuku.server;
 
 import static rikka.shizuku.server.ServerConstants.PERMISSION;
 
+import moe.shizuku.server.ConfigManager;
+
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;

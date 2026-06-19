@@ -3,12 +3,12 @@ package af.shizuku.starter
 import android.content.IContentProvider
 import android.os.*
 import android.util.Log
-import af.shizuku.api.BinderContainer
+import rikka.shizuku.BinderContainer
 import af.shizuku.starter.util.IContentProviderCompat
 import kotlinx.coroutines.*
 import rikka.hidden.compat.ActivityManagerApis
 import rikka.shizuku.ShizukuApiConstants
-import rikka.shizuku.server.UserService
+import moe.shizuku.server.UserService
 import java.util.*
 
 object ServiceStarter {

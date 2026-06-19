@@ -84,4 +84,8 @@ class HomeLayoutSimulatorPreference @JvmOverloads constructor(
             eye.imageTintList = android.content.res.ColorStateList.valueOf(context.getColor(R.color.system_neutral_outline))
         }
     }
+
+    fun refresh() {
+        notifyChanged()
+    }
 }

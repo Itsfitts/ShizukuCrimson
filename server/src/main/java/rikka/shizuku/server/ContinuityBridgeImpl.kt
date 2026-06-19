@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.RemoteException
 import android.util.Log
-import af.shizuku.server.IContinuityBridge
+import moe.shizuku.server.IContinuityBridge
 
 /**
  * Implementation of ContinuityBridge using Android 15+ Handoff APIs.

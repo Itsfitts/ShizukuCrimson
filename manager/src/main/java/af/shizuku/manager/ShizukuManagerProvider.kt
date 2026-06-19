@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import af.shizuku.api.BinderContainer
+import rikka.shizuku.BinderContainer
 import af.shizuku.manager.utils.Logger.LOGGER
 import af.shizuku.manager.utils.ShizukuStateMachine
 import rikka.shizuku.Shizuku

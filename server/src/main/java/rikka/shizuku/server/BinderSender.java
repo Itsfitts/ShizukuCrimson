@@ -23,7 +23,7 @@ import rikka.hidden.compat.PackageManagerApis;
 import rikka.hidden.compat.PermissionManagerApis;
 import rikka.hidden.compat.adapter.ProcessObserverAdapter;
 import rikka.hidden.compat.adapter.UidObserverAdapter;
-import rikka.shizuku.server.util.Logger;
+import moe.shizuku.server.util.Logger;
 
 public class BinderSender {
 

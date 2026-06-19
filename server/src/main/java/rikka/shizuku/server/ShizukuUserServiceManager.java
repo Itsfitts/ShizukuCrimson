@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import af.shizuku.starter.ServiceStarter;
+import moe.shizuku.server.UserServiceManager;
+import moe.shizuku.server.UserServiceRecord;
 import rikka.hidden.compat.PackageManagerApis;
 import rikka.hidden.compat.UserManagerApis;
 import af.shizuku.common.util.UserHandleCompat;
