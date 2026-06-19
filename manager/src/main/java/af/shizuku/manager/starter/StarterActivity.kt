@@ -22,6 +22,7 @@ import javax.net.ssl.SSLProtocolException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,10 +157,14 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         started = true
 
         viewModelScope.launch(handler) {
-            if (root) startRoot()
-            else if (isSystem) startSys()
-            else AdbStarter.startAdb(appContext, port, { log(it) })
-            Starter.waitForBinder({ log(it) })
+            try {
+                if (root) startRoot()
+                else if (isSystem) startSys()
+                else AdbStarter.startAdb(appContext, port, { log(it) })
+                Starter.waitForBinder({ log(it) })
+            } catch (e: TimeoutCancellationException) {
+                log("Error: Timed out waiting for service to start. The server might have crashed.", e)
+            }
         }
     }
 

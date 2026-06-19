@@ -1,0 +1,19 @@
+--- database/src/main/java/af/shizuku/manager/database/ActivityLogManager.kt
++++ database/src/main/java/af/shizuku/manager/database/ActivityLogManager.kt
+@@ -208,6 +208,9 @@
+         records.toList()
+     }
+
+     fun clear() {
+         synchronized(records) {
+             records.clear()
+-            _logs.value = emptyList()
++            _logs.value = listOf()
+         }
+
+         scope.launch {
+             try {
+-                dao?.clear()
++                dao?.let { it.clear() }
+             } catch (e: Exception) {
+                 Timber.tag(TAG).e(e, "Error clearing logs")

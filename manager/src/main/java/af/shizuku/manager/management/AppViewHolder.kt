@@ -2,6 +2,7 @@ package af.shizuku.manager.management
 
 import android.app.Activity
 import android.app.ActivityOptions
+import timber.log.Timber
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -153,6 +154,8 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                         if (runCatching { Shizuku.getUid() }.getOrDefault(-1) != 0) {
                             showAdbLimitedDialog(context)
                         }
+                    } catch (e: Throwable) {
+                        Timber.w(e, "Failed to toggle permission")
                     }
                 })
             }
@@ -214,6 +217,9 @@ class AppViewHolder(private val binding: AppListItemBinding) :
         } catch (e: SecurityException) {
             val uid = runCatching { Shizuku.getUid() }.getOrDefault(-1)
             if (uid != 0) showAdbLimitedDialog(context)
+            return
+        } catch (e: Throwable) {
+            Timber.w(e, "Failed to toggle permission")
             return
         }
         val pos = adapterPosition

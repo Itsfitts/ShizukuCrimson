@@ -45,13 +45,27 @@
         android:label="@string/permission_label"
         android:permissionGroup="af.shizuku.plus.permission-group.API"
         android:protectionLevel="dangerous" />
-    
-    <uses-permission
+
+    <permission
+        android:name="af.shizuku.manager.permission.API_V23"
+        android:description="@string/permission_description"
+        android:icon="@drawable/ic_system_icon"
+        android:label="@string/permission_label"
+        android:permissionGroup="af.shizuku.plus.permission-group.API"
+        android:protectionLevel="dangerous" />
+
+    <permission
         android:name="moe.shizuku.manager.permission.API_V23"
-        tools:node="remove" />
+        android:description="@string/permission_description"
+        android:icon="@drawable/ic_system_icon"
+        android:label="@string/permission_label"
+        android:permissionGroup="af.shizuku.plus.permission-group.API"
+        android:protectionLevel="dangerous" />
+
 
     <application
         android:name=".ShizukuApplication"
+        android:extractNativeLibs="true"
         android:allowBackup="true"
         android:autoRevokePermissions="allowed"
         android:banner="@drawable/ic_launcher"
@@ -148,6 +162,14 @@
             android:exported="false"
             android:label="@string/home_service_doctor_title" />
         <activity
+            android:name=".activitylog.ActivityLogActivity"
+            android:exported="false"
+            android:label="@string/settings_activity_log" />
+        <activity
+            android:name=".adb.AdbPairingTutorialActivity"
+            android:exported="false"
+            android:label="@string/home_wireless_adb_title" />
+        <activity
             android:name=".shell.ShellTutorialActivity"
             android:exported="false"
             android:label="@string/home_terminal_title" />
@@ -190,7 +212,8 @@
             android:theme="@style/GrantPermissions">
             <intent-filter android:priority="1000">
                 <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER" />
-
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_BINDER" />
+                <action android:name="af.shizuku.manager.action.REQUEST_BINDER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -272,6 +295,8 @@
             tools:ignore="ExportedReceiver">
             <intent-filter android:priority="1000">
                 <action android:name="rikka.shizuku.intent.action.REQUEST_BINDER" />
+                <action android:name="moe.shizuku.privileged.api.intent.action.REQUEST_BINDER" />
+                <action android:name="af.shizuku.manager.action.REQUEST_BINDER" />
             </intent-filter>
         </receiver>
 
@@ -326,7 +351,7 @@
 
         <provider
             android:name=".ShizukuManagerProvider"
-            android:authorities="${applicationId}.shizuku;moe.shizuku.privileged.api"
+            android:authorities="${applicationId}.shizuku"
             android:directBootAware="true"
             android:enabled="true"
             android:exported="true"

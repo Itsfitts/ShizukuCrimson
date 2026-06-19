@@ -145,9 +145,10 @@ public class ShizukuConfigManager extends ConfigManager {
             }
 
             boolean packagesChanged = true;
+            java.util.Set<String> packageSet = new java.util.HashSet<>(packages);
 
             for (String packageName : entry.packages) {
-                if (packages.contains(packageName)) {
+                if (packageSet.contains(packageName)) {
                     packagesChanged = false;
                     break;
                 }
@@ -193,8 +194,13 @@ public class ShizukuConfigManager extends ConfigManager {
                 List<String> packages = new ArrayList<>();
                 packages.add(pi.packageName);
 
-                updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, allowed ? ConfigManager.FLAG_ALLOWED : 0);
-                changed = true;
+                if (allowed) {
+                    updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, ConfigManager.FLAG_ALLOWED);
+                    changed = true;
+                } else if (rikka.shizuku.server.util.OsUtils.getUid() == 0) {
+                    updateLocked(uid, packages, ConfigManager.MASK_PERMISSION, 0);
+                    changed = true;
+                }
         }
 
         if (changed) {

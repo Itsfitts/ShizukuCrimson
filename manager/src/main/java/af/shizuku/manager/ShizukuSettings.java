@@ -77,6 +77,8 @@ public class ShizukuSettings {
         public static final String KEY_VECTOR_ENABLED = "vector_enabled";
         public static final String KEY_HIDE_DISABLED_PLUS_FEATURES = "hide_disabled_plus_features";
 
+        public static final String KEY_ENABLE_LOGCAT_LOGGER = "enable_logcat_logger";
+
         // Home card extras (Shizuku+ additions)
         public static final String KEY_SHOW_START_ADB_HOME = "show_start_adb_home";
         public static final String KEY_CARD_ORDER = "home_card_order";
@@ -240,11 +242,7 @@ public class ShizukuSettings {
     }
 
     public static String getAuthToken() {
-        String authToken = getPreferences().getString("auth_token", null);
-        if (authToken == null || authToken.isEmpty()) {
-            authToken = generateAuthToken();
-        }
-        return authToken;
+        return getPreferences().getString("auth_token", null);
     }
 
     public static String generateAuthToken() {

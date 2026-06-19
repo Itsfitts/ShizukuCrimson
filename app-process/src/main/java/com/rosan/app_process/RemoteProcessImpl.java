@@ -2,12 +2,14 @@ package com.rosan.app_process;
 
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
 
 public class RemoteProcessImpl extends IRemoteProcess.Stub {
     private final @NonNull Process mProcess;
@@ -96,17 +98,17 @@ public class RemoteProcessImpl extends IRemoteProcess.Stub {
                     outputStream.flush();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("RemoteProcessImpl", "pipe read error", e);
             } finally {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("RemoteProcessImpl", "failed to close inputStream", e);
                 }
                 try {
                     outputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("RemoteProcessImpl", "failed to close outputStream", e);
                 }
             }
         }).start();

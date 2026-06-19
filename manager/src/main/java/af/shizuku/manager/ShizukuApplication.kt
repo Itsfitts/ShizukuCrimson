@@ -227,7 +227,28 @@ class ShizukuApplication : Application(), Configuration.Provider {
      * Initialize settings and managers
      */
     private fun initializeManagers() {
-        ActivityLogManager.initialize(this, ActivityLogSettingsImpl())
+        val userManager = getSystemService(Context.USER_SERVICE) as? UserManager
+        val isUnlocked = userManager == null || if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) userManager.isUserUnlocked else true
+
+        if (isUnlocked) {
+            ActivityLogManager.initialize(this, ActivityLogSettingsImpl())
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Timber.w("Direct Boot mode detected, deferring ActivityLogManager initialization")
+                val receiver = object : android.content.BroadcastReceiver() {
+                    override fun onReceive(context: Context, intent: Intent) {
+                        if (Intent.ACTION_USER_UNLOCKED == intent.action) {
+                            Timber.i("Device unlocked, initializing ActivityLogManager")
+                            ActivityLogManager.initialize(context, ActivityLogSettingsImpl())
+                            context.unregisterReceiver(this)
+                        }
+                    }
+                }
+                registerReceiver(receiver, android.content.IntentFilter(Intent.ACTION_USER_UNLOCKED))
+            } else {
+                ActivityLogManager.initialize(this, ActivityLogSettingsImpl())
+            }
+        }
         AppContextManager.initialize(AppContextSettingsImpl())
         LocaleDelegate.defaultLocale = ShizukuSettings.getLocale()
         AppCompatDelegate.setDefaultNightMode(ShizukuSettings.getNightMode())
@@ -287,7 +308,6 @@ class ShizukuApplication : Application(), Configuration.Provider {
             }
         }
 
-        val userManager = getSystemService(Context.USER_SERVICE) as? UserManager
         if (userManager == null || userManager.isUserUnlocked) {
             try {
                 RemoteDbSyncWorker.schedule(this)
@@ -363,7 +383,11 @@ class ShizukuApplication : Application(), Configuration.Provider {
         try {
             initializeManagers()
             if (ShizukuSettings.getWatchdog()) {
-                startService(Intent(this, af.shizuku.manager.service.ShizukuLiveService::class.java))
+                try {
+                    startService(Intent(this, af.shizuku.manager.service.ShizukuLiveService::class.java))
+                } catch (e: Exception) {
+                    Timber.tag("ShizukuApplication").w("Failed to start ShizukuLiveService (likely app is in background): %s", e.message)
+                }
             }
         } catch (e: Throwable) {
             Timber.e(e, "Failed to initialize managers")
@@ -377,6 +401,12 @@ class ShizukuApplication : Application(), Configuration.Provider {
         } catch (e: Exception) {
             Timber.e(e, "Failed to update state machine")
             Sentry.captureException(e)
+        }
+
+        try {
+            af.shizuku.manager.utils.LogcatLogger.init(this)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to initialize LogcatLogger")
         }
 
         Timber.d("Shizuku+ ${BuildConfig.VERSION_NAME} initialization complete")

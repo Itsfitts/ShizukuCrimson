@@ -16,6 +16,9 @@
 
     <style name="ThemeOverlay.DynamicColors.Dark" parent="ThemeOverlay.Material3.DynamicColors.Dark.Shizuku"/>
 
+    <!-- Base Accent Overlay -->
+    <style name="ThemeOverlay.Accent" />
+
     <!-- Violet Accent Overlay -->
     <style name="ThemeOverlay.Accent.Violet">
         <item name="colorPrimary">#7B1FA2</item>

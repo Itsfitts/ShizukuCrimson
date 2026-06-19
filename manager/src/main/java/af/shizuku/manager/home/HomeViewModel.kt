@@ -95,7 +95,10 @@ class HomeViewModel(
             }
         } else null
         
-        val permissionTest = Shizuku.checkRemotePermission("android.permission.GRANT_RUNTIME_PERMISSIONS") == PackageManager.PERMISSION_GRANTED
+        // Server is ADB (uid=2000) or root (uid=0) — both have WRITE_SECURE_SETTINGS access.
+        // Don't use checkRemotePermission here; that checks if the manager app itself has been
+        // granted a Shizuku-proxied permission, which is almost always false for this permission.
+        val permissionTest = uid == 2000 || uid == 0
 
         try {
             ShizukuSystemApis.checkPermission(Manifest.permission.API_V23, BuildConfig.APPLICATION_ID, 0)

@@ -3,9 +3,11 @@ package rikka.shizuku.server;
 import moe.shizuku.server.IRemoteProcess;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.util.Log;
 import java.io.IOException;
 
 public class MockRemoteProcess extends IRemoteProcess.Stub {
+    private static final String TAG = "MockRemoteProcess";
     private final int exitCode;
     private final String errorOutput;
     private final String standardOutput;
@@ -16,16 +18,27 @@ public class MockRemoteProcess extends IRemoteProcess.Stub {
         this.standardOutput = standardOutput;
     }
 
-    private static ParcelFileDescriptor stringToPfd(String text) {
-        if (text == null) text = "";
+    private ParcelFileDescriptor createPfdFromString(String content) {
+        if (content == null) {
+            return null;
+        }
         try {
             ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-            try (ParcelFileDescriptor.AutoCloseOutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])) {
-                outputStream.write(text.getBytes());
-                outputStream.flush();
-            }
-            return pipe[0];
+            ParcelFileDescriptor readSide = pipe[0];
+            ParcelFileDescriptor writeSide = pipe[1];
+
+            new Thread(() -> {
+                try (ParcelFileDescriptor.AutoCloseOutputStream out = new ParcelFileDescriptor.AutoCloseOutputStream(writeSide)) {
+                    out.write(content.getBytes());
+                    out.flush();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error writing mock process output", e);
+                }
+            }).start();
+
+            return readSide;
         } catch (IOException e) {
+            Log.e(TAG, "Failed to create pipe for mock process", e);
             return null;
         }
     }
@@ -37,12 +50,12 @@ public class MockRemoteProcess extends IRemoteProcess.Stub {
 
     @Override
     public ParcelFileDescriptor getInputStream() throws RemoteException {
-        return stringToPfd(standardOutput);
+        return createPfdFromString(standardOutput);
     }
 
     @Override
     public ParcelFileDescriptor getErrorStream() throws RemoteException {
-        return stringToPfd(errorOutput);
+        return createPfdFromString(errorOutput);
     }
 
     @Override

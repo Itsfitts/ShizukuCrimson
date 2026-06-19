@@ -105,7 +105,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private static final List<String> serverLogs = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
     private static final int MAX_SERVER_LOGS = 100;
     private final ShizukuConfigManager configManager;
-    private final int managerAppId;
+    private volatile int managerAppId;
     private final VirtualMachineManagerImpl virtualMachineManager = new VirtualMachineManagerImpl();
     private final StorageProxyImpl storageProxy = new StorageProxyImpl();
     private final AICorePlusImpl aiCorePlus;
@@ -143,7 +143,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         }
 
         assert ai != null;
-        managerAppId = ai.uid;
+        managerAppId = UserHandleCompat.getAppId(ai.uid);
+        LOGGER.i("manager app uid=%d (appId=%d)", ai.uid, managerAppId);
 
         configManager = getConfigManager();
         clientManager = getClientManager();
@@ -198,9 +199,40 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         return new ShizukuConfigManager();
     }
 
+    /**
+     * Returns the current manager appId, refreshing from PackageManager if the cached value
+     * no longer matches any installed package. This handles APK reinstalls that change the UID.
+     */
+    private int getManagerAppId() {
+        return managerAppId;
+    }
+
+    /**
+     * Re-fetches the manager UID from PackageManager and updates the cache.
+     * Called when the manager app reconnects (e.g. after reinstall).
+     */
+    private void refreshManagerAppId() {
+        ApplicationInfo ai = getManagerApplicationInfo();
+        if (ai != null) {
+            int freshAppId = UserHandleCompat.getAppId(ai.uid);
+            if (freshAppId != managerAppId) {
+                LOGGER.w("manager appId changed: old=%d new=%d (APK reinstall?), refreshing", managerAppId, freshAppId);
+                managerAppId = freshAppId;
+            }
+        }
+    }
+
     @Override
     public boolean checkCallerManagerPermission(String func, int callingUid, int callingPid) {
-        return UserHandleCompat.getAppId(callingUid) == managerAppId;
+        int callerAppId = UserHandleCompat.getAppId(callingUid);
+        if (callerAppId == managerAppId) return true;
+        // Stale cache guard: if the caller claims to be the manager package, refresh and re-check
+        List<String> packages = PackageManagerApis.getPackagesForUidNoThrow(callingUid);
+        if (packages.contains(MANAGER_APPLICATION_ID)) {
+            refreshManagerAppId();
+            return callerAppId == managerAppId;
+        }
+        return false;
     }
 
     private int checkCallingPermission() {
@@ -222,7 +254,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public boolean checkCallerPermission(String func, int callingUid, int callingPid, @Nullable ClientRecord clientRecord) {
-        if (UserHandleCompat.getAppId(callingUid) == managerAppId) {
+        if (checkCallerManagerPermission(func, callingUid, callingPid)) {
             return true;
         }
         if (clientRecord == null && checkCallingPermission() == PackageManager.PERMISSION_GRANTED) {
@@ -260,7 +292,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         int callingPid = Binder.getCallingPid();
         int callingUid = Binder.getCallingUid();
         boolean isManager;
-        ClientRecord clientRecord = null;
+        ClientRecord clientRecord = clientManager.findClient(callingUid, callingPid);
 
         List<String> packages = PackageManagerApis.getPackagesForUidNoThrow(callingUid);
         if (!packages.contains(requestPackageName)) {
@@ -270,7 +302,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
         isManager = MANAGER_APPLICATION_ID.equals(requestPackageName);
 
-        if (clientManager.findClient(callingUid, callingPid) == null) {
+        if (clientRecord == null) {
             synchronized (this) {
                 clientRecord = clientManager.addClient(callingUid, callingPid, application, requestPackageName, apiVersion);
             }
@@ -307,28 +339,37 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 LOGGER.w(e, "grant WRITE_SECURE_SETTINGS");
             }
         }
-        try {
-            // First try using the current descriptor (moe.shizuku.server.IShizukuApplication)
-            application.bindApplication(reply);
-        } catch (Throwable e) {
-            // If it fails (likely due to interface descriptor mismatch on the client side),
-            // try using the legacy descriptor (moe.shizuku.server.IShizukuApplication)
-            LOGGER.w("attachApplication via current descriptor failed, trying legacy descriptor for " + requestPackageName);
+        String descriptor = "moe.shizuku.server.IShizukuApplication";
+        if (clientRecord != null) {
+            descriptor = clientRecord.descriptor;
+        } else {
             try {
+                String remoteDesc = application.asBinder().getInterfaceDescriptor();
+                if (remoteDesc != null && !remoteDesc.isEmpty()) {
+                    descriptor = remoteDesc;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+
+        try {
+            if ("moe.shizuku.server.IShizukuApplication".equals(descriptor)) {
+                application.bindApplication(reply);
+            } else {
+                LOGGER.i("Using legacy/custom interface descriptor: " + descriptor + " for " + requestPackageName);
                 Parcel data = Parcel.obtain();
                 try {
-                    data.writeInterfaceToken("moe.shizuku.server.IShizukuApplication");
+                    data.writeInterfaceToken(descriptor);
                     // 1 = bindApplication(Bundle)
                     data.writeInt(1);
                     reply.writeToParcel(data, 0);
                     application.asBinder().transact(1, data, null, IBinder.FLAG_ONEWAY);
-                    LOGGER.i("Successfully sent bindApplication via legacy descriptor to " + requestPackageName);
                 } finally {
                     data.recycle();
                 }
-            } catch (Throwable e2) {
-                LOGGER.e(e2, "attachApplication legacy also failed for " + requestPackageName);
             }
+        } catch (Throwable e) {
+            LOGGER.e(e, "attachApplication failed for " + requestPackageName);
         }
     }
 
@@ -351,7 +392,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         if (!isFeatureEnabled("binder_firewall")) return false;
 
         // The manager app (the owner of this service) is always allowed
-        if (UserHandleCompat.getAppId(uid) == managerAppId) return false;
+        if (UserHandleCompat.getAppId(uid) == managerAppId || checkCallerManagerPermission("binder_firewall", uid, -1)) return false;
 
         boolean isBlocked = false;
 
@@ -418,7 +459,6 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             if ("android.content.pm.IPackageManager".equals(descriptor)) {
                 // Save position to restore if we don't handle it
                 int pos = data.dataPosition();
-                data.setDataPosition(0);
                 
                 String packageName = null;
                 try {
@@ -1448,7 +1488,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public void dispatchPermissionConfirmationResult(int requestUid, int requestPid, int requestCode, Bundle data) throws RemoteException {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
+        if (!checkCallerManagerPermission("dispatchPermissionConfirmationResult", Binder.getCallingUid(), Binder.getCallingPid())) {
             LOGGER.w("dispatchPermissionConfirmationResult called not from the manager package");
             return;
         }
@@ -1503,11 +1543,15 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     continue;
                 }
 
-                int deviceId = 0;//Context.DEVICE_ID_DEFAULT
-                if (allowed) {
-                    PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
-                } else {
-                    PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                try {
+                    int deviceId = 0;//Context.DEVICE_ID_DEFAULT
+                    if (allowed) {
+                        PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
+                    } else {
+                        PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.w(e, "Failed to grant/revoke runtime permission for " + packageName);
                 }
                 break;
             }
@@ -1548,8 +1592,8 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public int getFlagsForUid(int uid, int mask) {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
-            LOGGER.w("updateFlagsForUid is allowed to be called only from the manager");
+        if (!checkCallerManagerPermission("getFlagsForUid", Binder.getCallingUid(), Binder.getCallingPid())) {
+            LOGGER.w("getFlagsForUid is allowed to be called only from the manager");
             return 0;
         }
         return getFlagsForUidInternal(uid, mask, true);
@@ -1557,11 +1601,10 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
     @Override
     public void updateFlagsForUid(int uid, int mask, int value) throws RemoteException {
-        if (UserHandleCompat.getAppId(Binder.getCallingUid()) != managerAppId) {
+        if (!checkCallerManagerPermission("updateFlagsForUid", Binder.getCallingUid(), Binder.getCallingPid())) {
             LOGGER.w("updateFlagsForUid is allowed to be called only from the manager");
             return;
         }
-
         int userId = UserHandleCompat.getUserId(uid);
 
         if ((mask & ConfigManager.MASK_PERMISSION) != 0) {
@@ -1598,12 +1641,16 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     continue;
                 }
 
-                int deviceId = 0;//Context.DEVICE_ID_DEFAULT
-                if (allowed) {
-                    PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
-                } else {
-                    PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
-                    onPermissionRevoked(packageName);
+                try {
+                    int deviceId = 0;//Context.DEVICE_ID_DEFAULT
+                    if (allowed) {
+                        PermissionManagerApis.grantRuntimePermission(packageName, permToGrant, userId);
+                    } else {
+                        PermissionManagerApis.revokeRuntimePermission(packageName, permToGrant, userId);
+                        onPermissionRevoked(packageName);
+                    }
+                } catch (Throwable e) {
+                    LOGGER.w(e, "Failed to grant/revoke runtime permission for " + packageName);
                 }
                 break;
             }
@@ -1663,23 +1710,40 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         return new ParcelableListSlice<>(list);
     }
 
+    private void enforceCustomInterface(Parcel data) {
+        int pos = data.dataPosition();
+        try {
+            data.enforceInterface("af.shizuku.server.IShizukuService");
+            return;
+        } catch (SecurityException ignored) {}
+        
+        data.setDataPosition(pos);
+        try {
+            data.enforceInterface("moe.shizuku.server.IShizukuService");
+            return;
+        } catch (SecurityException ignored) {}
+
+        data.setDataPosition(pos);
+        data.enforceInterface("rikka.shizuku.IShizukuService");
+    }
+
     @Override
     public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
         //LOGGER.d("transact: code=%d, calling uid=%d", code, Binder.getCallingUid());
         if (code == ServerConstants.BINDER_TRANSACTION_getApplications) {
-            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            enforceCustomInterface(data);
             int userId = data.readInt();
             ParcelableListSlice<PackageInfo> result = getApplications(userId);
             reply.writeNoException();
             result.writeToParcel(reply, android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
             return true;
         } else if (code == ServerConstants.BINDER_TRANSACTION_isCustomApiEnabled) {
-            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            enforceCustomInterface(data);
             reply.writeNoException();
             reply.writeInt(1); // Shizuku+ server always has it enabled at server level if running
             return true;
         } else if (code == ServerConstants.BINDER_TRANSACTION_getDhizukuBinder) {
-            data.enforceInterface(ShizukuApiConstants.BINDER_DESCRIPTOR);
+            enforceCustomInterface(data);
             // In Shizuku+, we share the DevicePolicyManager binder if Dhizuku mode is "active"
             // (The manager app controls this via settings, but the server just provides the binder if asked)
             IBinder dpm = ServiceManager.getService(Context.DEVICE_POLICY_SERVICE);
@@ -1760,6 +1824,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 failedUserIds.add(userId);
             }
         }
+        
+        System.out.println("shizuku_server_ready");
+        
         if (!failedUserIds.isEmpty()) {
             // For unknown reason, sometimes this could happen
             // Kill Shizuku app and try again could work
@@ -1865,13 +1932,42 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 return false;
             }
 
-            Bundle extra = new Bundle();
-            extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-            extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+            boolean success = false;
 
-            Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-            if (reply != null) {
+            try {
+                Bundle extra = new Bundle();
+                extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send af.shizuku binder to %s", packageName);
+            }
+
+            try {
+                Bundle extra = new Bundle();
+                extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send rikka.shizuku binder to %s", packageName);
+            }
+
+            try {
+                Bundle extra = new Bundle();
+                extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                if (reply != null) {
+                    success = true;
+                }
+            } catch (Throwable tr) {
+                LOGGER.v("failed to send moe.shizuku binder to %s", packageName);
+            }
+
+            if (success) {
                 LOGGER.i("send binder to user app %s in user %d", packageName, userId);
                 return true;
             } else {

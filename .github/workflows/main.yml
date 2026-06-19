@@ -17,6 +17,10 @@ on:
         required: false
         default: false
 
+# Opt into Node.js 24 for all actions before the June 16 forced migration deadline
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -86,13 +90,24 @@ jobs:
           java-version: '21'
 
       - name: Create signing.properties
-        if: ${{ env.IS_DEBUG == 'false' && env.KEYSTORE != '' }}
         run: |
-          echo KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} > signing.properties
-          echo KEYSTORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} >> signing.properties
-          echo KEYSTORE_ALIAS_PASSWORD='${{ secrets.KEYSTORE_ALIAS_PASSWORD }}' >> signing.properties
-          echo KEYSTORE_FILE=${{ github.workspace }}/key.jks >> signing.properties
-          printf "%s" "${{ secrets.KEYSTORE }}" | base64 --decode > key.jks
+          if [ -n "${{ secrets.KEYSTORE }}" ]; then
+            echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" > signing.properties
+            echo "KEYSTORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }}" >> signing.properties
+            echo "KEYSTORE_ALIAS_PASSWORD='${{ secrets.KEYSTORE_ALIAS_PASSWORD }}'" >> signing.properties
+            echo "KEYSTORE_FILE=${{ github.workspace }}/key.jks" >> signing.properties
+            printf "%s" "${{ secrets.KEYSTORE }}" | base64 --decode > key.jks
+          else
+            echo "Using fallback debug key for release signing"
+            echo "KEYSTORE_PASSWORD=android" > signing.properties
+            echo "KEYSTORE_ALIAS=androiddebugkey" >> signing.properties
+            echo "KEYSTORE_ALIAS_PASSWORD=android" >> signing.properties
+            echo "KEYSTORE_FILE=${{ github.workspace }}/key.jks" >> signing.properties
+            keytool -genkeypair -v -keystore key.jks -storepass android \
+              -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug, O=Android, C=US" 2>/dev/null
+          fi
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -112,10 +127,10 @@ jobs:
           GIT_COUNT=$(git rev-list --count HEAD)
           
           if [ "$IS_PRERELEASE" = "true" ]; then
-            VERSION="Shizuku+ ${BASE_VERSION}.r${GIT_COUNT}"
+            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS="-Pbeta"
           else
-            VERSION="Shizuku+ ${BASE_VERSION}.r${GIT_COUNT}"
+            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS=""
           fi
           
@@ -133,7 +148,11 @@ jobs:
           fi
 
           export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError"
-          eval $CMD --stacktrace --info -x uploadSentryProguardMappingsRelease -x sentryUploadSourceBundleRelease -x :manager:lint
+          EXTRA_ARGS="-x :manager:lint"
+          if [ -n "$SENTRY_AUTH_TOKEN" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS -x uploadSentryProguardMappingsRelease -x sentryUploadSourceBundleRelease"
+          fi
+          eval $CMD --stacktrace --info $EXTRA_ARGS
           
           FILE=$(find "$APK_DIR" -name "*.apk" -type f | head -1)
           if [ -z "$FILE" ]; then
@@ -143,18 +162,30 @@ jobs:
           
           # Verify if signed
           if [ "$IS_DEBUG" = "false" ]; then
-            if ! unzip -l "$FILE" | grep -q "META-INF/.*\.RSA"; then
+            BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
+            APKSIGNER="$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner"
+            if ! $APKSIGNER verify "$FILE" >/dev/null 2>&1; then
               echo "WARNING: Release APK appears to be UNSIGNED!"
               # Attempt to sign if key.jks exists (failsafe using apksigner for v2+ support)
               if [ -f "key.jks" ]; then
                 echo "Attempting manual signing failsafe with apksigner..."
-                BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
-                $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks key.jks \
-                  --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
-                  --ks-key-alias "${{ secrets.KEYSTORE_ALIAS }}" \
-                  --key-pass "pass:${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" \
+                if [ -n "${{ secrets.KEYSTORE }}" ]; then
+                  KS_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
+                  ALIAS="${{ secrets.KEYSTORE_ALIAS }}"
+                  KEY_PASS="${{ secrets.KEYSTORE_ALIAS_PASSWORD }}"
+                else
+                  KS_PASS="android"
+                  ALIAS="androiddebugkey"
+                  KEY_PASS="android"
+                fi
+                $APKSIGNER sign --ks key.jks \
+                  --ks-pass "pass:$KS_PASS" \
+                  --ks-key-alias "$ALIAS" \
+                  --key-pass "pass:$KEY_PASS" \
                   "$FILE"
               fi
+            else
+              echo "Release APK is already signed successfully!"
             fi
           fi
 
@@ -269,12 +300,12 @@ jobs:
       - name: Read Version
         id: version
         run: |
-          VERSION=$(cat version.txt)
+          VERSION=$(cat version.txt | tr -d '\r' | xargs)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG_NAME=$VERSION" >> $GITHUB_ENV
 
       - name: Create Release Tag
         run: |
-          TAG_NAME="${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
@@ -295,7 +326,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG_NAME="${VERSION}"
           # Find the previous release tag (ignoring current and non-version tags)
           PREV_TAG=$(git tag --list '*13.6.0.r*' --sort=-creatordate | grep -v "^${TAG_NAME}$" | head -1)
           
@@ -356,7 +386,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG_NAME="${VERSION}"
           APK_FILE=$(find files -name "*.apk" -type f | head -1)
           # Always create a full release as requested
-          gh release create "$TAG_NAME" "$APK_FILE" --title "$VERSION" --notes-file release_notes.md
+          gh release create "$TAG_NAME" "$APK_FILE" --title "Shizuku+ $VERSION" --notes-file release_notes.md

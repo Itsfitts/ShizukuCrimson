@@ -109,6 +109,42 @@ class AdvancedSettingsFragment : BaseSettingsFragment() {
                 .show()
             true
         }
+
+        findPreference<TwoStatePreference>("enable_logcat_logger")?.setOnPreferenceChangeListener { _, newValue ->
+            if (newValue is Boolean) {
+                if (newValue) {
+                    af.shizuku.manager.utils.LogcatLogger.start(context)
+                } else {
+                    af.shizuku.manager.utils.LogcatLogger.stop()
+                }
+            }
+            true
+        }
+
+        findPreference<Preference>("export_logcat")?.setOnPreferenceClickListener {
+            val logFile = af.shizuku.manager.utils.LogcatLogger.getLogFile(context)
+            if (logFile.exists() && logFile.length() > 0) {
+                try {
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider",
+                        logFile
+                    )
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Share Logcat"))
+                } catch (e: Exception) {
+                    Timber.tag("AdvancedSettings").e(e, "Failed to share logcat")
+                    Toast.makeText(context, "Failed to share logcat: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(context, "Logcat file is empty or does not exist", Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
     }
 
     private fun setupTroubleshootingPreferences() {

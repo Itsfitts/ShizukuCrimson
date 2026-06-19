@@ -44,6 +44,19 @@ class WatchdogService : Service() {
             )
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                NOTIFICATION_ID_WATCHDOG,
+                buildNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        } else {
+            startForeground(
+                NOTIFICATION_ID_WATCHDOG,
+                buildNotification()
+            )
+        }
+
         job = scope.launch {
             ShizukuStateMachine.asFlow().collectLatest { state ->
                 if (state == ShizukuStateMachine.State.CRASHED) {
@@ -71,18 +84,6 @@ class WatchdogService : Service() {
         if (intent?.action == ACTION_STOP_SERVICE) {
             stopSelf()
             return START_NOT_STICKY
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIFICATION_ID_WATCHDOG,
-                buildNotification(),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-            )
-        } else {
-            startForeground(
-                NOTIFICATION_ID_WATCHDOG,
-                buildNotification()
-            )
         }
         return START_STICKY
     }
