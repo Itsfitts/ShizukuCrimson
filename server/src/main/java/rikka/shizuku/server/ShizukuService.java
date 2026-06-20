@@ -373,9 +373,15 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final java.util.Map<String, String> plusSettingsMap = new java.util.concurrent.ConcurrentHashMap<>();
 
     private boolean isFeatureEnabled(String key) {
-        if (featureEnabledMap.containsKey(key)) return featureEnabledMap.get(key);
-        if (!key.endsWith("_enabled") && featureEnabledMap.containsKey(key + "_enabled")) return featureEnabledMap.get(key + "_enabled");
-        return featureEnabledMap.getOrDefault(key, false);
+        // Use getOrDefault throughout to avoid auto-unboxing NPE on ConcurrentHashMap
+        // (containsKey + get is not atomic and can return null between the two calls).
+        Boolean value = featureEnabledMap.getOrDefault(key, null);
+        if (value != null) return value;
+        if (!key.endsWith("_enabled")) {
+            Boolean suffixed = featureEnabledMap.getOrDefault(key + "_enabled", null);
+            if (suffixed != null) return suffixed;
+        }
+        return false;
     }
 
     @Override
@@ -431,19 +437,25 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 java.lang.reflect.Field f1 = stub.getDeclaredField("TRANSACTION_getPackageInfo");
                 f1.setAccessible(true);
                 TRANSACTION_getPackageInfo = f1.getInt(null);
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                LOGGER.w("Shadow: TRANSACTION_getPackageInfo not found on this OS — shadow/spoof for getPackageInfo disabled: %s", e.getMessage());
+            }
             try {
                 java.lang.reflect.Field f2 = stub.getDeclaredField("TRANSACTION_getApplicationInfo");
                 f2.setAccessible(true);
                 TRANSACTION_getApplicationInfo = f2.getInt(null);
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                LOGGER.w("Shadow: TRANSACTION_getApplicationInfo not found on this OS — shadow/spoof for getApplicationInfo disabled: %s", e.getMessage());
+            }
             try {
                 java.lang.reflect.Field f3 = stub.getDeclaredField("TRANSACTION_getPackageUid");
                 f3.setAccessible(true);
                 TRANSACTION_getPackageUid = f3.getInt(null);
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                LOGGER.w("Shadow: TRANSACTION_getPackageUid not found on this OS — shadow/spoof for getPackageUid disabled: %s", e.getMessage());
+            }
         } catch (Throwable t) {
-            LOGGER.w(t, "Shadow: Failed to dynamically look up IPackageManager transaction codes");
+            LOGGER.w(t, "Shadow: Failed to load IPackageManager$Stub — all shadow binder features disabled");
         }
     }
 
