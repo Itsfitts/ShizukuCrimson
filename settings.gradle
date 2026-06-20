@@ -40,7 +40,7 @@ include ":server", ":starter", ":shell", ":manager", ":common", ":database", ":c
 include ":core:ui"
 project(":core:ui").projectDir = file("core/ui")
 
-def root = "api"
+def root = "ShizukuPlus-API"
 
 def propFile = file("local.properties")
 def props = new Properties()

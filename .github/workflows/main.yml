@@ -149,7 +149,7 @@ jobs:
 
           export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError"
           EXTRA_ARGS="-x :manager:lint"
-          if [ -n "$SENTRY_AUTH_TOKEN" ]; then
+          if [ -z "$SENTRY_AUTH_TOKEN" ]; then
             EXTRA_ARGS="$EXTRA_ARGS -x uploadSentryProguardMappingsRelease -x sentryUploadSourceBundleRelease"
           fi
           eval $CMD --stacktrace --info $EXTRA_ARGS
