@@ -169,7 +169,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                         json.put("tag", tag);
                         json.put("message", message);
                         if (throwable != null) {
-                            json.put("stacktrace", Log.getStackTraceString(throwable));
+                            json.put("stackTrace", Log.getStackTraceString(throwable));
                         }
                         record.client.dispatchSentryEvent(json.toString());
                     } catch (Throwable ignored) {

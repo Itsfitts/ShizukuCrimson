@@ -145,7 +145,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                             AuthorizationManager.grant(packageName, uid)
                             ActivityLogManager.log(appLabel, packageName, "Long-press: grant_permission")
                         }
-                        val pos = adapterPosition
+                        val pos = bindingAdapterPosition
                         if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                             adapter.notifyItemChanged(pos, Any())
                             adapter.notifyItemChanged(0)
@@ -180,7 +180,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                                 if (success) {
                                     Toast.makeText(context, if (isFrozen) "App unfrozen" else "App frozen", Toast.LENGTH_SHORT).show()
                                     ActivityLogManager.log(appLabel, packageName, "Long-press: ${if (isFrozen) "unfreeze" else "freeze"}")
-                                    val pos = adapterPosition
+                                    val pos = bindingAdapterPosition
                                     if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) adapter.notifyItemChanged(pos)
                                 } else {
                                     Toast.makeText(context, "Operation failed", Toast.LENGTH_SHORT).show()
@@ -222,7 +222,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
             Timber.w(e, "Failed to toggle permission")
             return
         }
-        val pos = adapterPosition
+        val pos = bindingAdapterPosition
         if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
             adapter.notifyItemChanged(pos, Any())
             adapter.notifyItemChanged(0)
@@ -277,7 +277,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                 ActivityLogManager.log(appLabel, packageName, "Toggle Enhancement: ${enhancements[which].key} -> $isChecked")
             }
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                val pos = adapterPosition
+                val pos = bindingAdapterPosition
                 if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                     adapter.notifyItemChanged(pos)
                 }

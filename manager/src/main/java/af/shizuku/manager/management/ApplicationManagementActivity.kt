@@ -304,7 +304,7 @@ class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callbacks 
             override fun onMove(r: RecyclerView, v: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
 
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
-                val pos = vh.adapterPosition
+                val pos = vh.bindingAdapterPosition
                 val items = adapter.getItems<Any>()
                 val item = items.getOrNull(pos) as? PackageInfo
                 adapter.notifyItemChanged(pos) // snap back

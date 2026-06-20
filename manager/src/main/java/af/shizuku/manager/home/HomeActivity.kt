@@ -282,15 +282,15 @@ abstract class HomeActivity : AppBarActivity(), MavericksView {
             override fun isLongPressDragEnabled() = false
 
             override fun getMovementFlags(rv: RecyclerView, vh: RecyclerView.ViewHolder): Int {
-                return if (adapter.isDraggable(vh.adapterPosition))
+                return if (adapter.isDraggable(vh.bindingAdapterPosition))
                     makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
                     else
                     makeMovementFlags(0, 0)
                     }
 
                     override fun onMove(rv: RecyclerView, src: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-                if (!adapter.isDraggable(target.adapterPosition)) return false
-                adapter.moveItem(src.adapterPosition, target.adapterPosition)
+                if (!adapter.isDraggable(target.bindingAdapterPosition)) return false
+                adapter.moveItem(src.bindingAdapterPosition, target.bindingAdapterPosition)
                 if (ShizukuSettings.isExpressiveAnimationsEnabled()) {
                     HapticUtils.tap(target.itemView)
                 }
@@ -520,25 +520,11 @@ abstract class HomeActivity : AppBarActivity(), MavericksView {
 
         if (isFinishing || isDestroyed) return
 
-        // Show checking dialog briefly
-        val checkingDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.update_checking)
-            .setCancelable(false)
-            .show()
-
-        // Check for updates in background
+        // Check for updates in background — no blocking dialog so users can use
+        // the app freely while the network call is in progress.
         lifecycleScope.launch {
             try {
                 val result = UpdateChecker.checkForUpdate(ShizukuSettings.getUpdateChannel())
-
-                try {
-                    if (checkingDialog.isShowing && !isFinishing && !isDestroyed) {
-                        checkingDialog.dismiss()
-                    }
-                } catch (e: IllegalArgumentException) {
-                    // Window already detached by the time the coroutine resumed — safe to ignore
-                    Timber.tag("HomeActivity").w("checkingDialog dismiss failed: window already detached")
-                }
 
                 when (result) {
                     is UpdateChecker.CheckResult.UpdateAvailable -> {
@@ -556,13 +542,6 @@ abstract class HomeActivity : AppBarActivity(), MavericksView {
                 }
             } catch (e: Exception) {
                 Timber.tag("HomeActivity").e(e, "Unexpected error checking for update")
-                try {
-                    if (checkingDialog.isShowing && !isFinishing && !isDestroyed) {
-                        checkingDialog.dismiss()
-                    }
-                } catch (ex: IllegalArgumentException) {
-                    Timber.tag("HomeActivity").w("checkingDialog dismiss failed in catch: window already detached")
-                }
                 ShizukuSettings.setLastUpdateCheckFailed(true)
             }
         }

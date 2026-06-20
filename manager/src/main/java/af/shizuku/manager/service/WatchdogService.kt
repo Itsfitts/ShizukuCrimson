@@ -80,8 +80,14 @@ class WatchdogService : Service() {
         }
     }
 
+    // Set when the user explicitly stopped the service via ACTION_STOP_SERVICE.
+    // We only persist watchdog=false in that case; an OS kill (OOM, battery)
+    // should not permanently disable the watchdog preference.
+    private var stoppedByUser = false
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP_SERVICE) {
+            stoppedByUser = true
             stopSelf()
             return START_NOT_STICKY
         }
@@ -92,7 +98,9 @@ class WatchdogService : Service() {
         job?.cancel()
         scope.cancel()
         isRunning.set(false)
-        ShizukuSettings.setWatchdog(applicationContext, false)
+        if (stoppedByUser) {
+            ShizukuSettings.setWatchdog(applicationContext, false)
+        }
         super.onDestroy()
     }
 
