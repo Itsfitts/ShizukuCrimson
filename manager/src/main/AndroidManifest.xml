@@ -237,6 +237,12 @@
             tools:node="merge" />
 
         <service
+            android:name=".adb.AdbPairingService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
+
+        <service
             android:name=".service.WatchdogService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
