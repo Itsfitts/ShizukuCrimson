@@ -149,9 +149,6 @@ jobs:
 
           export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError"
           EXTRA_ARGS="-x :manager:lint"
-          if [ -z "$SENTRY_AUTH_TOKEN" ]; then
-            EXTRA_ARGS="$EXTRA_ARGS -x :manager:uploadSentryProguardMappingsRelease"
-          fi
           eval $CMD --stacktrace --info $EXTRA_ARGS
           
           FILE=$(find "$APK_DIR" -name "*.apk" -type f | head -1)
