@@ -109,7 +109,9 @@
 -keep class kotlin.coroutines.** { *; }
 
 # Room
--keep class * extends androidx.room.RoomDatabase
+-keep class * extends androidx.room.RoomDatabase {
+    <init>(...);
+}
 -keep class * extends androidx.room.Entity
 -keep class * implements androidx.room.Dao
 

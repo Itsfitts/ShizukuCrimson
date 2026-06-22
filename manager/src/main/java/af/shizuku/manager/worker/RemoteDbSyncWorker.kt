@@ -17,6 +17,10 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 
 class RemoteDbSyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+ 
+    internal var connectionFactory: (String) -> HttpURLConnection = { url ->
+        URL(url).openConnection() as HttpURLConnection
+    }
 
     companion object {
         private const val WORK_NAME = "remote_app_db_sync"
@@ -66,7 +70,7 @@ class RemoteDbSyncWorker(context: Context, params: WorkerParameters) : Coroutine
     }
 
     private fun fetch(urlString: String): String? {
-        val connection = (URL(urlString).openConnection() as HttpURLConnection).apply {
+        val connection = connectionFactory(urlString).apply {
             requestMethod = "GET"
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS

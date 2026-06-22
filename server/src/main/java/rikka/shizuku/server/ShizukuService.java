@@ -1940,39 +1940,59 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 return false;
             }
 
+            PackageInfo pi = PackageManagerApis.getPackageInfoNoThrow(packageName, PackageManager.GET_PERMISSIONS, userId);
+            boolean requestsCustom = false;
+            boolean requestsStock = false;
+            if (pi != null && pi.requestedPermissions != null) {
+                for (String reqPerm : pi.requestedPermissions) {
+                    if (PERMISSION.equals(reqPerm)) {
+                        requestsCustom = true;
+                    } else if (ServerConstants.PERMISSION_ORIGINAL.equals(reqPerm) || ServerConstants.PERMISSION_LEGACY.equals(reqPerm)) {
+                        requestsStock = true;
+                    }
+                }
+            }
+            if (MANAGER_APPLICATION_ID.equals(packageName)) {
+                requestsCustom = true;
+            }
+
             boolean success = false;
 
-            try {
-                Bundle extra = new Bundle();
-                extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
-                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-                if (reply != null) {
-                    success = true;
+            if (requestsCustom) {
+                try {
+                    Bundle extra = new Bundle();
+                    extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
+                    Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                    if (reply != null) {
+                        success = true;
+                    }
+                } catch (Throwable tr) {
+                    LOGGER.v("failed to send af.shizuku binder to %s", packageName);
                 }
-            } catch (Throwable tr) {
-                LOGGER.v("failed to send af.shizuku binder to %s", packageName);
             }
 
-            try {
-                Bundle extra = new Bundle();
-                extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-                if (reply != null) {
-                    success = true;
+            if (requestsStock || (!requestsCustom && !requestsStock)) {
+                try {
+                    Bundle extra = new Bundle();
+                    extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+                    Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                    if (reply != null) {
+                        success = true;
+                    }
+                } catch (Throwable tr) {
+                    LOGGER.v("failed to send rikka.shizuku binder to %s", packageName);
                 }
-            } catch (Throwable tr) {
-                LOGGER.v("failed to send rikka.shizuku binder to %s", packageName);
-            }
 
-            try {
-                Bundle extra = new Bundle();
-                extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-                Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
-                if (reply != null) {
-                    success = true;
+                try {
+                    Bundle extra = new Bundle();
+                    extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+                    Bundle reply = IContentProviderUtils.callCompat(provider, null, name, "sendBinder", null, extra);
+                    if (reply != null) {
+                        success = true;
+                    }
+                } catch (Throwable tr) {
+                    LOGGER.v("failed to send moe.shizuku binder to %s", packageName);
                 }
-            } catch (Throwable tr) {
-                LOGGER.v("failed to send moe.shizuku binder to %s", packageName);
             }
 
             if (success) {

@@ -27,7 +27,7 @@ class AICorePlusImplTest {
         every { Log.d(any(), any()) } returns 0
         every { Log.w(any(), any<String>()) } returns 0
 
-        aiCorePlusImpl = AICorePlusImpl()
+        aiCorePlusImpl = AICorePlusImpl(mockk(relaxed = true), mockk(relaxed = true))
         runtimeMock = mockk(relaxed = true)
         processMock = mockk(relaxed = true)
 

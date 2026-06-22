@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerParameters
 import af.shizuku.manager.ShizukuSettings
-import af.shizuku.manager.utils.AppContextManager
+import af.shizuku.manager.database.AppContextManager
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -43,10 +43,10 @@ class RemoteDbSyncWorkerTest : FunSpec({
     test("doWork returns retry when fetch throws exception") {
         every { ShizukuSettings.getLastDbUpdate() } returns 0L
 
-        mockkConstructor(URL::class)
-        every { anyConstructed<URL>().openConnection() } throws RuntimeException("Simulated network error")
-
         val worker = RemoteDbSyncWorker(context, workerParams)
+        worker.connectionFactory = { _ ->
+            throw RuntimeException("Simulated network error")
+        }
         val result = worker.doWork()
 
         result shouldBe Result.retry()
