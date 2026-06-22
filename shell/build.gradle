@@ -29,7 +29,7 @@ android {
     }
 }
 
-android.applicationVariants.all { variant ->
+project.extensions.getByName("android").applicationVariants.all { variant ->
     variant.outputs.all {
         def outDir = new File(rootDir, "out")
         def mappingPath = new File(outDir, "mapping").absolutePath

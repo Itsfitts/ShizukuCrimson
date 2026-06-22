@@ -4,14 +4,14 @@ if (ksFile.canRead()) {
     props.load(new FileInputStream(ksFile))
 
     if (props != null) {
-        android.signingConfigs.sign.storeFile file(props["KEYSTORE_FILE"])
-        android.signingConfigs.sign.storePassword props["KEYSTORE_PASSWORD"]
-        android.signingConfigs.sign.keyAlias props["KEYSTORE_ALIAS"]
-        android.signingConfigs.sign.keyPassword props["KEYSTORE_ALIAS_PASSWORD"]
+        project.extensions.getByName("android").signingConfigs.sign.storeFile file(props["KEYSTORE_FILE"])
+        project.extensions.getByName("android").signingConfigs.sign.storePassword props["KEYSTORE_PASSWORD"]
+        project.extensions.getByName("android").signingConfigs.sign.keyAlias props["KEYSTORE_ALIAS"]
+        project.extensions.getByName("android").signingConfigs.sign.keyPassword props["KEYSTORE_ALIAS_PASSWORD"]
     }
 } else {
-    android.signingConfigs.sign.storeFile = android.signingConfigs.debug.storeFile
-    android.signingConfigs.sign.storePassword = android.signingConfigs.debug.storePassword
-    android.signingConfigs.sign.keyAlias = android.signingConfigs.debug.keyAlias
-    android.signingConfigs.sign.keyPassword = android.signingConfigs.debug.keyPassword
+    project.extensions.getByName("android").signingConfigs.sign.storeFile = project.extensions.getByName("android").signingConfigs.debug.storeFile
+    project.extensions.getByName("android").signingConfigs.sign.storePassword = project.extensions.getByName("android").signingConfigs.debug.storePassword
+    project.extensions.getByName("android").signingConfigs.sign.keyAlias = project.extensions.getByName("android").signingConfigs.debug.keyAlias
+    project.extensions.getByName("android").signingConfigs.sign.keyPassword = project.extensions.getByName("android").signingConfigs.debug.keyPassword
 }
