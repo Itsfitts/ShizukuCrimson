@@ -213,25 +213,45 @@ public class ShizukuProvider extends ContentProvider {
             return;
         }
 
-        BinderContainer container = extras.getParcelable(EXTRA_BINDER);
-        if (container == null) {
-            container = extras.getParcelable("rikka.shizuku.intent.extra.BINDER");
+        android.os.Parcelable parcelable = null;
+        try {
+            parcelable = extras.getParcelable(EXTRA_BINDER);
+        } catch (Throwable ignored) {}
+        if (parcelable == null) {
+            try {
+                parcelable = extras.getParcelable("rikka.shizuku.intent.extra.BINDER");
+            } catch (Throwable ignored) {}
         }
-        if (container == null) {
-            container = extras.getParcelable("moe.shizuku.privileged.api.intent.extra.BINDER");
+        if (parcelable == null) {
+            try {
+                parcelable = extras.getParcelable("moe.shizuku.privileged.api.intent.extra.BINDER");
+            } catch (Throwable ignored) {}
         }
-        if (container == null) {
-            container = extras.getParcelable("dev.rikka.shizuku.intent.extra.BINDER");
+        if (parcelable == null) {
+            try {
+                parcelable = extras.getParcelable("dev.rikka.shizuku.intent.extra.BINDER");
+            } catch (Throwable ignored) {}
         }
-        
-        if (container != null && container.binder != null) {
+
+        IBinder binder = null;
+        if (parcelable != null) {
+            try {
+                java.lang.reflect.Field field = parcelable.getClass().getField("binder");
+                binder = (IBinder) field.get(parcelable);
+            } catch (Throwable tr) {
+                Log.e(TAG, "Failed to get binder field from parcelable", tr);
+            }
+        }
+
+        if (binder != null) {
             Log.d(TAG, "binder received");
 
-            Shizuku.onBinderReceived(container.binder, getContext().getPackageName());
+            Shizuku.onBinderReceived(binder, getContext().getPackageName());
 
             if (enableMultiProcess) {
                 Log.d(TAG, "broadcast binder");
 
+                BinderContainer container = new BinderContainer(binder);
                 Intent intent = new Intent(ACTION_BINDER_RECEIVED)
                         .putExtra(EXTRA_BINDER, container)
                         .putExtra("rikka.shizuku.intent.extra.BINDER", container)
