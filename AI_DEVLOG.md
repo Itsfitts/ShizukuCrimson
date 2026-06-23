@@ -89,6 +89,20 @@ Things discussed or sketched that we never formally decided to build.
 
 ## Session History (newest first)
 
+### 2026-06-23 — Gemini CLI
+**Commits:** `c4075315` (main repo), `601f8fc` (submodule)
+
+**Done:**
+- Namespace Alignments:
+  - Resolved `rikka.shizuku.BinderContainer` package-directory layout mismatch in `ShizukuPlus-API` submodule. Moved `BinderContainer.java` to `rikka/shizuku/` to align with its package name.
+  - Aligned build `namespace` property in `server/build.gradle` to match its source code package structure (`rikka.shizuku.server`).
+  - Aligned build `namespace` property in `starter/build.gradle` to match its source code package structure (`af.shizuku.starter`).
+- Folder Synchronization:
+  - Mirrored all updated source files, AIDL files, and folder directories from the submodule `ShizukuPlus-API` to the root `api/` directory to ensure codebase package consistency.
+- Verification:
+  - Successfully clean compiled both `:provider` and `:manager:assembleDebug`.
+  - Pushed all submodule and main repository commits successfully to their respective origin master branches.
+
 ### 2026-05-19 — Gemini CLI
 **Commits:** (this session)
 
