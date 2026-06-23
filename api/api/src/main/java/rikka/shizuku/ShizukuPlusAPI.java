@@ -17,14 +17,14 @@ import java.util.Collections;
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
 
-import af.shizuku.server.IActivityManagerPlus;
-import af.shizuku.server.IWindowManagerPlus;
-import af.shizuku.server.IOverlayManagerPlus;
-import af.shizuku.server.INetworkGovernorPlus;
-import af.shizuku.server.IAICorePlus;
-import af.shizuku.server.IContinuityBridge;
-import af.shizuku.server.IVirtualMachineManager;
-import af.shizuku.server.IStorageProxy;
+import moe.shizuku.server.IActivityManagerPlus;
+import moe.shizuku.server.IWindowManagerPlus;
+import moe.shizuku.server.IOverlayManagerPlus;
+import moe.shizuku.server.INetworkGovernorPlus;
+import moe.shizuku.server.IAICorePlus;
+import moe.shizuku.server.IContinuityBridge;
+import moe.shizuku.server.IVirtualMachineManager;
+import moe.shizuku.server.IStorageProxy;
 
 /**
  * Shizuku+API provides extended features for Shizuku+,
@@ -49,7 +49,7 @@ public class ShizukuPlusAPI {
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
-            data.writeInterfaceToken("af.shizuku.server.IShizukuService");
+            data.writeInterfaceToken("moe.shizuku.server.IShizukuService");
             if (serviceBinder.transact(code, data, reply, 0)) {
                 reply.readException();
                 IBinder binder = reply.readStrongBinder();
@@ -489,8 +489,7 @@ public class ShizukuPlusAPI {
         /**
          * Schedule a high-priority task on the Neural Processing Unit (NPU).
          */
-        @Nullable
-        public static Bundle scheduleNPULoad(@NonNull Bundle taskData) {
+        public static boolean scheduleNPULoad(@NonNull Bundle taskData) {
             IAICorePlus service = getService();
             if (service != null) {
                 try {
@@ -499,7 +498,7 @@ public class ShizukuPlusAPI {
                     Log.w(TAG, "Failed to schedule NPU load", e);
                 }
             }
-            return null;
+            return false;
         }
 
         /**

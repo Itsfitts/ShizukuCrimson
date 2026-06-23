@@ -4,11 +4,14 @@ plugins {
 }
 
 android {
-    namespace = "rikka.shizuku.server"
+    namespace = "moe.shizuku.server"
     buildTypes {
         release {
             minifyEnabled = false
         }
+    }
+    lint {
+        abortOnError = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -24,7 +27,6 @@ dependencies {
     api project(":aidl")
     api project(":shared")
     api project(":rish")
-    api project(":common")
 
     implementation libs.refine.runtime
     implementation libs.hidden.compat

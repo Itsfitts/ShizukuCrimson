@@ -24,7 +24,7 @@
  *   hello-jni/app/src/main/java/com/example/hellojni/HelloJni.java
  */
 JNIEXPORT jstring JNICALL
-Java_rikka_shizuku_demo_service_UserService_stringFromJNI(JNIEnv *env, jclass clazz) {
+Java_af_shizuku_demo_service_UserService_stringFromJNI(JNIEnv *env, jclass clazz) {
 #if defined(__arm__)
     #if defined(__ARM_ARCH_7A__)
     #if defined(__ARM_NEON__)

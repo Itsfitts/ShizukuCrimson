@@ -1,4 +1,4 @@
--keepnames class af.shizuku.api.BinderContainer
--keepclassmembers class af.shizuku.api.BinderContainer {
+-keepnames class rikka.shizuku.BinderContainer
+-keepclassmembers class rikka.shizuku.BinderContainer {
    public static final android.os.Parcelable$Creator CREATOR;
 }

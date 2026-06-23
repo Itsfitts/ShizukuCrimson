@@ -95,7 +95,7 @@ public class SystemServiceHelper {
             TRANSACT_CODE_CACHE.put(key, value);
             return value;
         } catch (ClassNotFoundException | IllegalAccessException e) {
-            android.util.Log.e("SystemServiceHelper", "Failed to get transaction code", e);
+            e.printStackTrace();
         }
         return null;
     }

@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 3.22.1)
-
-# Suppress unused-variable warnings from the Android Gradle Plugin
-set(ignoreMe "${ANDROID_LD}")
+cmake_minimum_required(VERSION 3.31)
 
 project("rish")
 
@@ -25,8 +22,8 @@ find_package(cxx REQUIRED CONFIG)
 add_library(rish SHARED
         main.cpp
         pts.cpp
-        rikka_rish_RishTerminal.cpp
-        rikka_rish_RishHost.cpp)
+        af_rish_RishTerminal.cpp
+        af_rish_RishHost.cpp)
 
 target_link_libraries(rish log cxx::cxx)
 

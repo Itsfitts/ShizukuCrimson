@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "rikka.shizuku.api"
+    namespace = "rikka.shizuku"
     buildFeatures {
         buildConfig = false
     }

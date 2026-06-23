@@ -17,7 +17,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import af.shizuku.api.BinderContainer;
+import rikka.shizuku.BinderContainer;
 import rikka.sui.Sui;
 
 /**
@@ -70,13 +70,13 @@ public class ShizukuProvider extends ContentProvider {
     // For share Binder between processes
     public static final String METHOD_GET_BINDER = "getBinder";
 
-    public static final String ACTION_BINDER_RECEIVED = "af.shizuku.api.action.BINDER_RECEIVED";
+    public static final String ACTION_BINDER_RECEIVED = "rikka.shizuku.action.BINDER_RECEIVED";
 
-    private static final String EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER";
+    private static final String EXTRA_BINDER = "moe.shizuku.privileged.api.intent.extra.BINDER";
 
-    public static final String PERMISSION = "af.shizuku.plus.permission.API_V23";
+    public static final String PERMISSION = "moe.shizuku.manager.permission.API_V23";
 
-    public static final String MANAGER_APPLICATION_ID = "af.shizuku.plus.api";
+    public static final String MANAGER_APPLICATION_ID = "moe.shizuku.privileged.api";
 
     private static boolean enableMultiProcess = false;
 
@@ -133,7 +133,7 @@ public class ShizukuProvider extends ContentProvider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED), Context.RECEIVER_NOT_EXPORTED);
         } else {
-            context.registerReceiver(receiver, new IntentFilter(ACTION_BINDER_RECEIVED));
+            androidx.core.content.ContextCompat.registerReceiver(context, receiver, new IntentFilter(ACTION_BINDER_RECEIVED), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
         }
 
         Bundle reply;
@@ -269,33 +269,11 @@ public class ShizukuProvider extends ContentProvider {
         if (binder == null || !binder.pingBinder())
             return false;
 
-        String callingPackage = getCallingPackage();
-        boolean isLegacy = true;
-        if (callingPackage == null || callingPackage.equals(getContext().getPackageName())) {
-            isLegacy = false;
-        } else {
-            try {
-                android.content.pm.PackageInfo pi = getContext().getPackageManager().getPackageInfo(callingPackage, android.content.pm.PackageManager.GET_PERMISSIONS);
-                if (pi != null && pi.requestedPermissions != null) {
-                    for (String reqPerm : pi.requestedPermissions) {
-                        if (PERMISSION.equals(reqPerm)) {
-                            isLegacy = false;
-                            break;
-                        }
-                    }
-                }
-            } catch (Throwable tr) {
-                Log.e(TAG, "Failed to check calling package permissions", tr);
-            }
-        }
-
-        if (!isLegacy) {
-            BinderContainer container = new BinderContainer(binder);
-            reply.putParcelable(EXTRA_BINDER, container);
-        }
-        reply.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-        reply.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
-        reply.putParcelable("dev.rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
+        BinderContainer container = new BinderContainer(binder);
+        reply.putParcelable(EXTRA_BINDER, container);
+        reply.putParcelable("rikka.shizuku.intent.extra.BINDER", container);
+        reply.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", container);
+        reply.putParcelable("dev.rikka.shizuku.intent.extra.BINDER", container);
         return true;
     }
 

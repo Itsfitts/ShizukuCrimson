@@ -93,7 +93,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    groupIdBase = "af.shizuku.plus"
+    groupIdBase = "moe.shizuku.manager"
 
     POM_INCEPTION_YEAR = "2026"
     POM_PACKAGING = "aar"

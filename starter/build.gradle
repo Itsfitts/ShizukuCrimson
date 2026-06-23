@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "rikka.shizuku.starter"
+    namespace = "af.shizuku.starter"
     buildFeatures {
         buildConfig = false
     }

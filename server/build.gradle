@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "af.shizuku.server"
+    namespace = "rikka.shizuku.server"
     buildFeatures {
         buildConfig = false
     }
