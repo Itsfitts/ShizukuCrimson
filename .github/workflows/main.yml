@@ -3,7 +3,7 @@ name: Build App
 on:
   push:
     branches:
-      - master
+      - master, crimson
   workflow_dispatch:
     inputs:
       debug:
