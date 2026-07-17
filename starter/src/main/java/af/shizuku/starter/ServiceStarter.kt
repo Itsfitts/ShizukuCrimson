@@ -14,7 +14,7 @@ import java.util.*
 object ServiceStarter {
 
     private const val TAG = "ShizukuServiceStarter"
-    private const val EXTRA_BINDER = "rikka.shizuku.intent.extra.BINDER"
+    private const val EXTRA_BINDER = "af.shizuku.plus.api.intent.extra.BINDER"
 
     val DEBUG_ARGS: String by lazy {
         val sdk = Build.VERSION.SDK_INT

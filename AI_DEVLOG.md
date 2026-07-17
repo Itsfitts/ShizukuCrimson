@@ -89,6 +89,19 @@ Things discussed or sketched that we never formally decided to build.
 
 ## Session History (newest first)
 
+### 2026-07-17 — Gemini CLI (Antigravity)
+**Commits:** (pending commit)
+
+**Done:**
+- **Resolved Service Starter EXTRA_BINDER Key Mismatch**:
+  - Found that `ServiceStarter.kt` was hardcoded to send/receive binders via the key `"rikka.shizuku.intent.extra.BINDER"`, while `ShizukuManagerProvider.kt` expected `"af.shizuku.plus.api.intent.extra.BINDER"`.
+  - Updated `ServiceStarter.kt` to use the correct `"af.shizuku.plus.api.intent.extra.BINDER"` key, resolving the ADB-initiated user service connection failure.
+- **Submodule Integration & A17 Compatibility**:
+  - Initialized and updated the empty `ShizukuPlus-API` submodule pointer in `ShizukuCrimson/ShizukuPlus-API`.
+  - Cherry-picked the Android 17 (A17) compatibility fix (`03bacbc`) from the standalone `ShizukuPlus-API` master branch into the submodule. This routes `checkPermission` and `getPackageInfo` calls via `Android17Compat` to resolve `NoSuchMethodError` crashes on A17.
+- **Folder Synchronization**:
+  - Mirrored the updated `Service.java` and `UserServiceManager.java` files from the submodule `server-shared` to the root `api/` directory.
+
 ### 2026-06-23 — Gemini CLI
 **Commits:** `c4075315` (main repo), `601f8fc` (submodule)
 
